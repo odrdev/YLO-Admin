@@ -1,0 +1,26 @@
+<div class="flex flex-col items-center justify-center w-full h-full">
+    <div class="w-full max-w-3xl">
+        <div class="max-w-none mx-auto prose prose-sm">
+            <img
+                class="w-20"
+                src="assets/images/logo/logo.svg"
+                alt="Logo image">
+            <h1>Sorry, your account doesn't have access to the I am Magsaysay admin portal.</h1>
+            <p>
+                We regret to inform you that your account access to the I am Magsaysay portal has been restricted for administrative reasons. Kindly note that you are currently unable to proceed with logging into the portal. If you have any concerns or inquiries, please reach out to the portal administrator for further assistance
+            </p>
+        </div>
+        <div>
+            <a
+                class="mt-8"
+                mat-flat-button
+                [color]="'primary'"
+                [routerLink]="'/sign-out'">
+                <span>Log out</span>
+                <mat-icon
+                    class="ml-2 icon-size-5"
+                    [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
+            </a>
+        </div>
+    </div>
+</div>
