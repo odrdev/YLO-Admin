@@ -9,7 +9,7 @@
             <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
         </div>
         <!-- Title -->
-        <div class="text-4xl font-extrabold tracking-tight">Folders</div>
+        <div class="text-4xl font-extrabold tracking-tight">Laws</div>
         <!-- Actions -->
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
             <!-- Search -->
@@ -56,10 +56,11 @@
                                 [mat-sort-header]="'id'">
                                 ID
                             </div>
-                            <div [mat-sort-header]="'name'">Name</div>
-                            <div [mat-sort-header]="'folder_order'">Display Order</div>
+                            <div [mat-sort-header]="'title'">Title</div>
+                            <div [mat-sort-header]="'subtitle'">Subtitle</div>
                             <div [mat-sort-header]="'version'" class="hidden sm:block">Version</div>
                             <div class="hidden sm:block">Details</div>
+                            <div class="hidden sm:block">Content</div>
                         </div>
                         <!-- Rows -->
                         <div class="grid" >
@@ -78,13 +79,13 @@
 
                                     <!-- Name -->
                                     <div class="truncate">
-                                        <p>{{item.name}}</p>                         
+                                        <p>{{item.title}}</p>                         
                                     </div>
 
                                     <!-- Service Type -->
                                     <div class="text hidden sm:block text-center">
                                         <!-- {{pliServices[product.serviceId-1].name}} -->
-                                        {{item.folder_order}}
+                                        {{item.subtitle}}
                                     </div>
                                     <div class="text hidden sm:block text-center">
                                         {{item.version}}
@@ -98,6 +99,16 @@
                                             <mat-icon
                                                 class="icon-size-5"
                                                 [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button
+                                            class="min-w-10 min-h-7 h-7 px-2 leading-6"
+                                            mat-stroked-button
+                                            (click)="viewContent(item.id)">
+                                            <mat-icon
+                                                class="icon-size-5"
+                                                [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-right' : 'heroicons_solid:chevron-right'"></mat-icon>
                                         </button>
                                     </div>
                                 </div>

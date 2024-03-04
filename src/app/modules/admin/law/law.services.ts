@@ -9,16 +9,16 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take, tap, throwError } from 'rxjs';
 import { iPagination } from '../global.type';
 import { AuthService } from 'app/core/auth/auth.service';
-import { iFolder, iFolderList, iFolderResult } from './folder.type';
+import { iLaw, iLawList, iLawResult } from './law.type';
 @Injectable({providedIn: 'root'})
-export class FolderService
+export class LawService
 {
     // Private
 
-    private _item: BehaviorSubject<iFolder | null> = new BehaviorSubject(null);
-    private _List: BehaviorSubject<iFolder[] | null> = new BehaviorSubject(null);
-    private _pagedList: BehaviorSubject<iFolderList[] | null> = new BehaviorSubject(null);
-    private apiURL = environment.apiendpoint + "folder/";
+    private _item: BehaviorSubject<iLaw | null> = new BehaviorSubject(null);
+    private _List: BehaviorSubject<iLaw[] | null> = new BehaviorSubject(null);
+    private _pagedList: BehaviorSubject<iLawList[] | null> = new BehaviorSubject(null);
+    private apiURL = environment.apiendpoint + "Law/";
     private _pagination: BehaviorSubject<iPagination | null> = new BehaviorSubject(null);
 
     /**
@@ -46,15 +46,15 @@ export class FolderService
     /**
      * Getter for services
      */
-    get PagedList$(): Observable<iFolderList[]>
+    get PagedList$(): Observable<iLawList[]>
     {
         return this._pagedList.asObservable();
     }
-    get List$(): Observable<iFolder[]>
+    get List$(): Observable<iLaw[]>
     {
         return this._List.asObservable();
     }
-    get item$(): Observable<iFolder>
+    get item$(): Observable<iLaw>
     {
         return this._item.asObservable();
     }
@@ -70,10 +70,10 @@ export class FolderService
     // -----------------------------------------------------------------------------------------------------
 
 
-    getList(): Observable<iFolder[]>
+    getList(): Observable<iLaw[]>
     {
 
-        return this._httpClient.get<iFolder[]>(this.apiURL,this.getHeaders()).pipe(
+        return this._httpClient.get<iLaw[]>(this.apiURL,this.getHeaders()).pipe(
             tap((res) =>
             {
                 res = res.filter((type:any)=>{
@@ -93,7 +93,7 @@ export class FolderService
      * @param sortAscending
      * @param txtsearch
      */
-    getListPaging(txtsearch = "", page = 0, size = 10,sortField="name", sortAscending='asc'): Observable<iFolderResult>
+    getListPaging(txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iLawResult>
     {
         
         var param = {
@@ -104,7 +104,7 @@ export class FolderService
             "sortAscending": sortAscending !== 'desc' ? true : false          };
         var url = this.apiURL + "Paging"
         console.log(param)
-        return this._httpClient.post<iFolderResult>(url,param,this.getHeaders()).pipe(
+        return this._httpClient.post<iLawResult>(url,param,this.getHeaders()).pipe(
             tap((res) =>
             {
                 console.log(res.Pagination)
@@ -120,7 +120,7 @@ export class FolderService
 
     
 
-    getById(id:any): Observable<iFolder>
+    getById(id:any): Observable<iLaw>
     {
         return this._pagedList.pipe(
             take(1),
@@ -151,11 +151,11 @@ export class FolderService
      * Create product
      */
     
-    create(item:iFolder): Observable<iFolder>
+    create(item:iLaw): Observable<iLaw>
     {
         return this.PagedList$.pipe(
             take(1),
-            switchMap(products => this._httpClient.post<iFolder>(this.apiURL, item, this.getHeaders()).pipe(
+            switchMap(products => this._httpClient.post<iLaw>(this.apiURL, item, this.getHeaders()).pipe(
                 map((newItem) =>
                 {
                     // Update the products with the new product
@@ -174,12 +174,12 @@ export class FolderService
      * @param id
      * @param item
      */
-    update(id: any, item: iFolder): Observable<iFolder>
+    update(id: any, item: iLaw): Observable<iLaw>
     {
         console.log(item)
         return this.PagedList$.pipe(
             take(1),
-            switchMap(items => this._httpClient.put<iFolder>(this.apiURL +  id, item, this.getHeaders()).pipe(
+            switchMap(items => this._httpClient.put<iLaw>(this.apiURL +  id, item, this.getHeaders()).pipe(
                 map((updatedItem) =>
                 {
                     // Find the index of the updated service

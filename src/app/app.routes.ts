@@ -74,6 +74,7 @@ export const appRoutes: Route[] = [
         },
         children: [
             {path: 'folder', loadChildren: () => import('app/modules/admin/folder/folder.routes')},
+            {path: 'law', loadChildren: () => import('app/modules/admin/law/law.routes')},
         ]
     }
 ];
