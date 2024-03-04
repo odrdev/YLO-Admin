@@ -150,13 +150,23 @@
 
                                             <!-- Name -->
                                             <mat-form-field class="w-full">
-                                                <mat-label>Name</mat-label>
+                                                <mat-label>Title</mat-label>
                                                 <input
                                                     matInput
-                                                    [formControlName]="'name'">
+                                                    [formControlName]="'title'">
                                             </mat-form-field>
-
-
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Sub Title</mat-label>
+                                                <input
+                                                    matInput
+                                                    [formControlName]="'subtitle'">
+                                            </mat-form-field>
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Description</mat-label>
+                                                <input
+                                                    matInput
+                                                    [formControlName]="'description'">
+                                            </mat-form-field>
                                         </div>
 
                             </div>

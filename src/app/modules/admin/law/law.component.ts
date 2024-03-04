@@ -137,7 +137,10 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         // Create the selected product form
         this.selectedItemForm = this._formBuilder.group({
             id             : [0, [Validators.required]],
-            name             : ['', [Validators.required]],
+            title             : ['', [Validators.required]],
+            subtitle             : [''],
+            description             : [''],
+
         });
 
         //load data resolver
@@ -288,8 +291,8 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     new(el:HTMLElement):void{
         
         this.newItem = true; 
-        var newItemForm = {id:0, name:'',};
-        var newItem = {id:0, name:''};
+        var newItemForm = {id:0, title:'',};
+        var newItem = {id:0, title:''};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
 
