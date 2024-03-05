@@ -1,9 +1,11 @@
 import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import {MatAutocompleteSelectedEvent, MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
 import { MatOptionModule, MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -17,33 +19,34 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
+import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap, startWith } from 'rxjs';
 import { DateTime } from 'luxon';
-import { LawService } from './law.services';
+import { DoctrineService } from './doctrine.services';
 import { ActivatedRoute,Router } from '@angular/router';
-import { iLaw, iLawList } from './law.type';
+import { iDoctrine, iDoctrineList } from './doctrine.type';
 import { ContentComponent } from '../content/content.component';
-
+import { TopicService } from '../topic/topic.services';
+import { iTopic } from '../topic/topic.type';
 
 @Component({
-    selector       : 'Law',
-    templateUrl    : 'law.component.html',
+    selector       : 'doctrine-component',
+    templateUrl    : 'doctrine.component.html',
     styles         : [
         /* language=SCSS */
         `  
-            .law-grid {
-                grid-template-columns: 48px auto  100px 50px 50px 50px;
+            .subs-grid {
+                grid-template-columns: 48px auto  100px 50px 48px;
 
                 @screen sm {
-                    grid-template-columns: 48px auto  150px 50px 50px  50px;
+                    grid-template-columns: 48px auto  150px 50px 48px;
                 }
 
                 @screen md {
-                    grid-template-columns: 48px auto  150px 96px 72px  72px; 
+                    grid-template-columns: 48px auto  300px 96px 48px; 
                 }
 
                 @screen lg {
-                    grid-template-columns: 48px auto  250px 96px 72px  72px ;
+                    grid-template-columns: 48px auto  350px 96px 48px;
                 }
             }
             .file-input {
@@ -101,60 +104,81 @@ import { ContentComponent } from '../content/content.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,ContentComponent,],
+    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,ContentComponent,],
 })
 
-export class LawComponent implements OnInit, AfterViewInit, OnDestroy
+export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
 {
-    @ViewChild('paginatorLaw',{static: false}) private paginatorLaw: MatPaginator;
+    @ViewChild('paginatorDoctrine',{static: false}) private paginatorDoctrine: MatPaginator;
     @ViewChild(MatSort,{static:false}) private _sort: MatSort;
    
     isEditing: boolean = false;
-    PagedList$: Observable<iLawList[]>;
+    PagedList$: Observable<iDoctrineList[]>;
     flashMessage: 'success' | 'error' | null = null;
     isLoading: boolean = false;
     pagination: iPagination;
     searchInputControl: UntypedFormControl = new UntypedFormControl();
-    selectedItem: iLaw| null = null;
+    selectedItem: iDoctrine| null = null;
     selectedItemForm: UntypedFormGroup;
     newItem: boolean;
     toggleOpen: boolean = false;
     txtSearch = "";
     showContent:boolean = false;
+    topics:iTopic[];
+    filteredtopics$:Observable<iTopic[]>;
+    topicDoctrine: iTopic[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    topicCtrl = new FormControl('');
+    @ViewChild('topicInput') topicInput: ElementRef<HTMLInputElement>;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: UntypedFormBuilder,
-        private _LawService: LawService,
+        private _DoctrineService: DoctrineService,
+        private _TopicService:TopicService,
         private activatedRoute: ActivatedRoute,
         private router:Router
     )
     {
         console.log("Constructor")
+        this.filteredtopics$ = this.topicCtrl.valueChanges.pipe(
+            startWith(null),
+            map((topic: string | null) => (topic ? this._filter(topic) : this.topics.slice())),
+          );
     }
+    private _filter(value: string): iTopic[] {
+        const filterValue = value.toLowerCase();
+    
+        return this.topics.filter(topic => topic.title.toLowerCase().includes(filterValue));
+      }
     ngOnInit(): void
     {
         console.log("On Init")
         // Create the selected product form
         this.selectedItemForm = this._formBuilder.group({
             id             : [0, [Validators.required]],
-            title             : ['', [Validators.required]],
-            subtitle             : [''],
-            description             : [''],
+            details             : ['', [Validators.required]],
+            citation             : [''],
 
         });
 
         //load data resolver
         console.log(this.activatedRoute.data)
-        this.activatedRoute.data.subscribe(({Laws}) => {
+        this.activatedRoute.data.subscribe(({Doctrines}) => {
             console.log("loaded data");
           });
 
+          this.activatedRoute.data.subscribe(({Topics}) => {
+            console.log("loaded Topics data");
+          });  
+
 
         //Get data observer and subscribe to data
-        this.PagedList$ = this._LawService.PagedList$;
+        this.PagedList$ = this._DoctrineService.PagedList$;
+
+         this._TopicService.List$.subscribe(res=>{
+                this.topics = res;
+        });
 
         this.PagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
                 console.log("subscribed")
@@ -162,7 +186,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         });
 
        // Get the pagination and subscribe
-        this._LawService.pagination$
+        this._DoctrineService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((pagination: iPagination) =>
             {
@@ -185,7 +209,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 this.txtSearch = query;
                 this.closeDetails();
                 this.isLoading = true;
-                return this._LawService.getListPaging(query.toLowerCase(),0,this.paginatorLaw.pageSize,this._sort.active,this._sort.direction)
+                return this._DoctrineService.getListPaging(query.toLowerCase(),0,this.paginatorDoctrine.pageSize,this._sort.active,this._sort.direction)
             }),
             map(()=>{
                 this.isLoading = false
@@ -196,11 +220,11 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     {
         console.log("After View Init");
         console.log(this._sort)
-        if ( this._sort && this.paginatorLaw )
+        if ( this._sort && this.paginatorDoctrine )
         {
             // Set the initial sort
             this._sort.sort({
-                id          : 'title',
+                id          : 'details',
                 start       : 'asc',
                 disableClear: true,
             });
@@ -214,19 +238,19 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 .subscribe(() =>
                 {
                     // Reset back to the first page
-                    this.paginatorLaw.pageIndex = 0;
+                    this.paginatorDoctrine.pageIndex = 0;
                     console.log("sort")
                     // Close the details
                     this.closeDetails();
                 });
 
             // Get products if sort or page changes
-            merge(this._sort.sortChange, this.paginatorLaw.page).pipe(
+            merge(this._sort.sortChange, this.paginatorDoctrine.page).pipe(
                 switchMap(() =>
                 {
                     this.closeDetails();
                     this.isLoading = true;
-                    return this._LawService.getListPaging(this.txtSearch,this.paginatorLaw.pageIndex,this.paginatorLaw.pageSize,this._sort.active, this._sort.direction);
+                    return this._DoctrineService.getListPaging(this.txtSearch,this.paginatorDoctrine.pageIndex,this.paginatorDoctrine.pageSize,this._sort.active, this._sort.direction);
                 }),
                 map(() =>
                 {
@@ -269,8 +293,8 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
             this.closeDetails();
             return;
         }
-
-        this._LawService.getById(Id)
+        
+        this._DoctrineService.getById(Id)
         .subscribe((item) =>
         {
             console.log(item)
@@ -279,10 +303,15 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
           
             this.selectedItemForm.patchValue(itemForm);
             
-           
+            this._TopicService.getByDoctrine(item.guid).subscribe(res=>{
+                console.log(res);
+                this.topicDoctrine = res;
+                this._changeDetectorRef.markForCheck();
+            })
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
+
     }
 
     toggleContent(event)
@@ -311,7 +340,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     
         console.log(newItem)
         
-        this._LawService.create(newItem).subscribe((newItem) =>
+        this._DoctrineService.create(newItem).subscribe((newItem) =>
         {
             // Go to new products
             this.selectedItem = newItem;
@@ -333,7 +362,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         const item = this.selectedItemForm.getRawValue();
 
         
-        this._LawService.update(item.id, item).subscribe({next: (event:any) =>{
+        this._DoctrineService.update(item.id, item).subscribe({next: (event:any) =>{
             console.log('next');
             console.log(event);
             this.showFlashMessage('success');
@@ -371,7 +400,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 const item = this.selectedItemForm.getRawValue();
 
                 // Delete the product on the server
-                this._LawService.delete(item.id).subscribe(() =>
+                this._DoctrineService.delete(item.id).subscribe(() =>
                 {
                     // Close the details
                     this.closeDetails();
@@ -409,5 +438,38 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     {
         return item.id || index;
     }
+
+    addTopic(event: MatChipInputEvent): void {
+        const value = (event.value || '').trim();
+    
+        var topic = this.topics.find(t=>t.title===event.value);
+        // Add our fruit
+        if (value) {
+          this.topicDoctrine.push(topic);
+        }
+    
+        // Clear the input value
+        event.chipInput!.clear();
+    
+        this.topicCtrl.setValue(null);
+      }
+    
+      removeTopic(topic): void {
+        const index = this.topicDoctrine.indexOf(topic);
+    
+        if (index >= 0) {
+          this.topicDoctrine.splice(index, 1);
+        }
+      }
+    
+      selectedTopic(event: MatAutocompleteSelectedEvent): void {
+        var topic = this.topics.find(t=>t.guid===event.option.value);
+        if(topic !== undefined){
+            this.topicDoctrine.push(topic);
+        }
+        
+        this.topicInput.nativeElement.value = '';
+        this.topicCtrl.setValue(null);
+      }
 
 }

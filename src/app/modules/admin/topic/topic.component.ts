@@ -19,19 +19,19 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
 import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
 import { DateTime } from 'luxon';
-import { LawService } from './law.services';
+import { TopicService } from './topic.services';
 import { ActivatedRoute,Router } from '@angular/router';
-import { iLaw, iLawList } from './law.type';
+import { iTopic, iTopicList } from './topic.type';
 import { ContentComponent } from '../content/content.component';
 
 
 @Component({
-    selector       : 'Law',
-    templateUrl    : 'law.component.html',
+    selector       : 'topic-component',
+    templateUrl    : 'topic.component.html',
     styles         : [
         /* language=SCSS */
         `  
-            .law-grid {
+            .subs-grid {
                 grid-template-columns: 48px auto  100px 50px 50px 50px;
 
                 @screen sm {
@@ -104,18 +104,18 @@ import { ContentComponent } from '../content/content.component';
     imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,ContentComponent,],
 })
 
-export class LawComponent implements OnInit, AfterViewInit, OnDestroy
+export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
 {
-    @ViewChild('paginatorLaw',{static: false}) private paginatorLaw: MatPaginator;
+    @ViewChild('paginatorTopic',{static: false}) private paginatorTopic: MatPaginator;
     @ViewChild(MatSort,{static:false}) private _sort: MatSort;
    
     isEditing: boolean = false;
-    PagedList$: Observable<iLawList[]>;
+    PagedList$: Observable<iTopicList[]>;
     flashMessage: 'success' | 'error' | null = null;
     isLoading: boolean = false;
     pagination: iPagination;
     searchInputControl: UntypedFormControl = new UntypedFormControl();
-    selectedItem: iLaw| null = null;
+    selectedItem: iTopic| null = null;
     selectedItemForm: UntypedFormGroup;
     newItem: boolean;
     toggleOpen: boolean = false;
@@ -127,7 +127,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: UntypedFormBuilder,
-        private _LawService: LawService,
+        private _TopicService: TopicService,
         private activatedRoute: ActivatedRoute,
         private router:Router
     )
@@ -141,20 +141,19 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         this.selectedItemForm = this._formBuilder.group({
             id             : [0, [Validators.required]],
             title             : ['', [Validators.required]],
-            subtitle             : [''],
             description             : [''],
 
         });
 
         //load data resolver
         console.log(this.activatedRoute.data)
-        this.activatedRoute.data.subscribe(({Laws}) => {
+        this.activatedRoute.data.subscribe(({Topics}) => {
             console.log("loaded data");
           });
 
 
         //Get data observer and subscribe to data
-        this.PagedList$ = this._LawService.PagedList$;
+        this.PagedList$ = this._TopicService.PagedList$;
 
         this.PagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
                 console.log("subscribed")
@@ -162,7 +161,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         });
 
        // Get the pagination and subscribe
-        this._LawService.pagination$
+        this._TopicService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((pagination: iPagination) =>
             {
@@ -185,7 +184,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 this.txtSearch = query;
                 this.closeDetails();
                 this.isLoading = true;
-                return this._LawService.getListPaging(query.toLowerCase(),0,this.paginatorLaw.pageSize,this._sort.active,this._sort.direction)
+                return this._TopicService.getListPaging(query.toLowerCase(),0,this.paginatorTopic.pageSize,this._sort.active,this._sort.direction)
             }),
             map(()=>{
                 this.isLoading = false
@@ -196,7 +195,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     {
         console.log("After View Init");
         console.log(this._sort)
-        if ( this._sort && this.paginatorLaw )
+        if ( this._sort && this.paginatorTopic )
         {
             // Set the initial sort
             this._sort.sort({
@@ -214,19 +213,19 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 .subscribe(() =>
                 {
                     // Reset back to the first page
-                    this.paginatorLaw.pageIndex = 0;
+                    this.paginatorTopic.pageIndex = 0;
                     console.log("sort")
                     // Close the details
                     this.closeDetails();
                 });
 
             // Get products if sort or page changes
-            merge(this._sort.sortChange, this.paginatorLaw.page).pipe(
+            merge(this._sort.sortChange, this.paginatorTopic.page).pipe(
                 switchMap(() =>
                 {
                     this.closeDetails();
                     this.isLoading = true;
-                    return this._LawService.getListPaging(this.txtSearch,this.paginatorLaw.pageIndex,this.paginatorLaw.pageSize,this._sort.active, this._sort.direction);
+                    return this._TopicService.getListPaging(this.txtSearch,this.paginatorTopic.pageIndex,this.paginatorTopic.pageSize,this._sort.active, this._sort.direction);
                 }),
                 map(() =>
                 {
@@ -270,7 +269,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
             return;
         }
 
-        this._LawService.getById(Id)
+        this._TopicService.getById(Id)
         .subscribe((item) =>
         {
             console.log(item)
@@ -311,7 +310,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     
         console.log(newItem)
         
-        this._LawService.create(newItem).subscribe((newItem) =>
+        this._TopicService.create(newItem).subscribe((newItem) =>
         {
             // Go to new products
             this.selectedItem = newItem;
@@ -333,7 +332,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         const item = this.selectedItemForm.getRawValue();
 
         
-        this._LawService.update(item.id, item).subscribe({next: (event:any) =>{
+        this._TopicService.update(item.id, item).subscribe({next: (event:any) =>{
             console.log('next');
             console.log(event);
             this.showFlashMessage('success');
@@ -371,7 +370,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 const item = this.selectedItemForm.getRawValue();
 
                 // Delete the product on the server
-                this._LawService.delete(item.id).subscribe(() =>
+                this._TopicService.delete(item.id).subscribe(() =>
                 {
                     // Close the details
                     this.closeDetails();

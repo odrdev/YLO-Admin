@@ -1,4 +1,4 @@
-<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent" @slideInLeft>
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent">
 
     <!-- Header -->
     <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
@@ -9,7 +9,17 @@
             <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
         </div>
         <!-- Title -->
-        <div class="text-4xl font-extrabold tracking-tight">Folders</div>
+        <div>
+            <button
+            class="min-w-10 min-h-7 h-7 px-2 leading-6"
+            mat-stroked-button
+            (click)="hideContent()">
+            <mat-icon
+                class="icon-size-5"
+                [svgIcon]="'heroicons_solid:chevron-left'"></mat-icon>
+        </button>
+        </div>
+        <div class="text-4xl font-extrabold tracking-tight">Contents</div>
         <!-- Actions -->
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
             <!-- Search -->
@@ -24,7 +34,7 @@
                     matInput
                     [formControl]="searchInputControl"
                     [autocomplete]="'off'"
-                    [placeholder]="'Search Folders'">
+                    [placeholder]="'Search Law'">
             </mat-form-field>
             <!-- Add product button -->
             <button
@@ -43,7 +53,7 @@
 
         <!-- Products list -->
         <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto" #newItemSection >
-            <ng-container  *ngIf="(PagedList$ | async) as items" >
+            <ng-container  *ngIf="(ArticlePagedList$ | async) as items" >
                 <ng-container>
                     <div class="grid">
                         <!-- Header -->
@@ -56,10 +66,11 @@
                                 [mat-sort-header]="'id'">
                                 ID
                             </div>
-                            <div [mat-sort-header]="'name'">Name</div>
-                            <div [mat-sort-header]="'folder_order'">Display Order</div>
+                            <div [mat-sort-header]="'title'">Title</div>
+                            <div [mat-sort-header]="'subtitle'">Subtitle</div>
                             <div [mat-sort-header]="'version'" class="hidden sm:block">Version</div>
                             <div class="hidden sm:block">Details</div>
+                            <div class="hidden sm:block">Content</div>
                         </div>
                         <!-- Rows -->
                         <div class="grid" >
@@ -68,7 +79,7 @@
                             </ng-container>
                         </div>
                         <ng-container *ngIf="items.length > 0; else noData">
-                        <ng-container *ngIf="(PagedList$ | async) as items">
+                        <ng-container *ngIf="(ArticlePagedList$ | async) as items">
                             <ng-container *ngFor="let item of items; trackBy: trackByFn">
                                 <div class="subs-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
 
@@ -78,13 +89,13 @@
 
                                     <!-- Name -->
                                     <div class="truncate">
-                                        <p>{{item.name}}</p>                         
+                                        <p>{{item.title}}</p>                         
                                     </div>
 
                                     <!-- Service Type -->
                                     <div class="text hidden sm:block text-center">
                                         <!-- {{pliServices[product.serviceId-1].name}} -->
-                                        {{item.folder_order}}
+                                        {{item.subtitle}}
                                     </div>
                                     <div class="text hidden sm:block text-center">
                                         {{item.version}}
@@ -100,6 +111,16 @@
                                                 [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
                                         </button>
                                     </div>
+                                    <div>
+                                        <button
+                                            class="min-w-10 min-h-7 h-7 px-2 leading-6"
+                                            mat-stroked-button
+                                            (click)="viewContent(item.id)">
+                                            <mat-icon
+                                                class="icon-size-5"
+                                                [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-right' : 'heroicons_solid:chevron-right'"></mat-icon>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="grid">
                                     <ng-container *ngIf="selectedItem?.id === item.id">
@@ -111,7 +132,7 @@
                         </ng-container>
                     </div>
 
-                    <mat-paginator
+                    <mat-paginator #paginatorArticle="matPaginator"
                         class="sm:absolute sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
                         [ngClass]="{'pointer-events-none': isLoading}"
                         [length]="pagination && pagination.length"
@@ -139,13 +160,23 @@
 
                                             <!-- Name -->
                                             <mat-form-field class="w-full">
-                                                <mat-label>Name</mat-label>
+                                                <mat-label>Title</mat-label>
                                                 <input
                                                     matInput
-                                                    [formControlName]="'name'">
+                                                    [formControlName]="'title'">
                                             </mat-form-field>
-
-
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Sub Title</mat-label>
+                                                <input
+                                                    matInput
+                                                    [formControlName]="'subtitle'">
+                                            </mat-form-field>
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Description</mat-label>
+                                                <input
+                                                    matInput
+                                                    [formControlName]="'description'">
+                                            </mat-form-field>
                                         </div>
 
                             </div>
