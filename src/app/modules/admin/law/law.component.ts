@@ -163,6 +163,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
             title             : ['', [Validators.required]],
             subtitle             : [''],
             description             : [''],
+            tags             : [''],
 
         });
 
@@ -325,8 +326,8 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     new(el:HTMLElement):void{
         
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',subtitle:"",description:""};
-        var newItem = {id:0, title:'',subtitle:"",description:""};
+        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:""};
+        var newItem = {id:0, title:'',subtitle:"",description:"",tags:""};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
         this.folderLaw = [];
