@@ -237,5 +237,28 @@ export class FolderService
             )),
         );
     }
-
+    getByLaw(GUID:any){
+        var url = this.apiURL + "Law/" + GUID
+        return this._httpClient.get<iFolder[]>(url,this.getHeaders()).pipe();
+    }
+    getByTopic(GUID:any){
+        var url = this.apiURL + "Topic/" + GUID
+        return this._httpClient.get<iFolder[]>(url,this.getHeaders()).pipe();
+    }
+    AddTopic(FolderGUID, TopicGUID){ 
+        var url = this.apiURL + FolderGUID + "/AddTopic/" + TopicGUID
+        return  this._httpClient.post(url, null, this.getHeaders()).pipe();
+    }
+    AddLaw(FolderGUID, LawGUID){ 
+        var url = this.apiURL + FolderGUID + "/AddLaw/" + LawGUID
+        return  this._httpClient.post(url, null, this.getHeaders()).pipe();
+    }
+    RemoveTopic(FolderGUID, LawGUID){ 
+        var url = this.apiURL + FolderGUID + "/RemoveTopic/" + LawGUID
+        return  this._httpClient.delete(url, this.getHeaders()).pipe();
+    }
+    RemoveLaw(FolderGUID, TopicGUID){ 
+        var url = this.apiURL + FolderGUID + "/RemoveLaw/" + TopicGUID
+        return  this._httpClient.delete(url, this.getHeaders()).pipe();
+    }
 }

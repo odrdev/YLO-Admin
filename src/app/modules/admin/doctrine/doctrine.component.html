@@ -149,30 +149,33 @@
                                                     [formControlName]="'citation'">
                                             </mat-form-field>
                                         </div>
-                                        <mat-form-field class="w-full">
-                                            <mat-label>Topics</mat-label>
-                                            <mat-chip-grid #chipGrid aria-label="Selected Topics">
-                                                <ng-container *ngFor="let topic of topicDoctrine; trackBy: trackByFn">
-                                           
-                                                <mat-chip-row (removed)="removeTopic(topic)">
-                                                  {{topic.title}}
-                                                  <button matChipRemove [attr.aria-label]="'remove ' + topic">
-                                                    <mat-icon>cancel</mat-icon>
-                                                  </button>
-                                                </mat-chip-row>
-                                                </ng-container>
-                                            </mat-chip-grid>
-                                            <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
-                                              [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
-                                              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                              (matChipInputTokenEnd)="addTopic($event)"/>
-                                            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedTopic($event)">
-                                                <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
-                                           
-                                                <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
-                                                </ng-container>
-                                            </mat-autocomplete>
-                                          </mat-form-field>
+                                        <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Topics</mat-label>
+                                                <mat-chip-grid #chipGrid aria-label="Selected Topics">
+                                                    <ng-container *ngFor="let topic of topicDoctrine; trackBy: trackByFn">
+                                               
+                                                    <mat-chip-row (removed)="removeTopic(topic)">
+                                                      {{topic.title}}
+                                                      <button matChipRemove [attr.aria-label]="'remove ' + topic">
+                                                        <mat-icon>cancel</mat-icon>
+                                                      </button>
+                                                    </mat-chip-row>
+                                                    </ng-container>
+                                                </mat-chip-grid>
+                                                <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
+                                                  [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                                                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                  (matChipInputTokenEnd)="addTopic($event)"/>
+                                                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedTopic($event)">
+                                                    <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
+                                               
+                                                    <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
+                                                    </ng-container>
+                                                </mat-autocomplete>
+                                              </mat-form-field>
+                                        </div>
+                                        
 
                             </div>
                             

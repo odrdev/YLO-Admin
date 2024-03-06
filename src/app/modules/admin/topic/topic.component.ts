@@ -294,8 +294,8 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
     new(el:HTMLElement):void{
         
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',};
-        var newItem = {id:0, title:''};
+        var newItemForm = {id:0, title:'', description:""};
+        var newItem = {id:0, title:'',description:""};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
 

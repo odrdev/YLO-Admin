@@ -127,6 +127,7 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
     topics:iTopic[];
     filteredtopics$:Observable<iTopic[]>;
     topicDoctrine: iTopic[];
+    deletedtopicDoctrine: iTopic[] = [];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     topicCtrl = new FormControl('');
     @ViewChild('topicInput') topicInput: ElementRef<HTMLInputElement>;
@@ -280,6 +281,8 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
     {
         this.newItem = false;
         this.selectedItem = null;
+        this.topicDoctrine = [];
+        this.deletedtopicDoctrine = [];
     }
 
     toggleDetails(Id: number): void
@@ -324,11 +327,11 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
     new(el:HTMLElement):void{
         
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',};
-        var newItem = {id:0, title:''};
+        var newItemForm = {id:0, details:'',citation:""};
+        var newItem = {id:0, details:'',citation:""};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
-
+        this.topicDoctrine = [];
         this._changeDetectorRef.markForCheck();
         el.scrollIntoView();
     }
@@ -349,6 +352,15 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
             this.selectedItemForm.patchValue(newItem);
 
             // Mark for check
+
+         
+            //add topic to topicDoctrine
+            this.topicDoctrine.forEach(item=>{
+                this._DoctrineService.AddToTopic(newItem.guid, item.guid).subscribe(res=>{
+                    console.log("Doctrine added to Topic");
+                });
+            })    
+
             this._changeDetectorRef.markForCheck();
             this.showFlashMessage('success');
             this.newItem = false;
@@ -360,13 +372,28 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
         // Get the product object
 
         const item = this.selectedItemForm.getRawValue();
-
         
         this._DoctrineService.update(item.id, item).subscribe({next: (event:any) =>{
             console.log('next');
             console.log(event);
             this.showFlashMessage('success');
             this.newItem = false;
+
+            console.log(this.deletedtopicDoctrine);
+            console.log(this.topicDoctrine);
+            this.deletedtopicDoctrine.forEach(res=>{
+                this._DoctrineService.RemoveFromTopic(this.selectedItem.guid,res.guid).subscribe(x=>{
+                    console.log("cleared doctrine");
+                    
+            });     
+            });
+            this.topicDoctrine.forEach(res=>{
+                this._DoctrineService.AddToTopic(this.selectedItem.guid,res.guid).subscribe(res=>{
+                    console.log("added doctrine");
+                });
+            });
+            this.deletedtopicDoctrine = [];
+            this._changeDetectorRef.markForCheck();
               
         },complete(){
             console.log('complete');
@@ -459,6 +486,7 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
     
         if (index >= 0) {
           this.topicDoctrine.splice(index, 1);
+          this.deletedtopicDoctrine.push(topic)
         }
       }
     
@@ -466,6 +494,7 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
         var topic = this.topics.find(t=>t.guid===event.option.value);
         if(topic !== undefined){
             this.topicDoctrine.push(topic);
+            
         }
         
         this.topicInput.nativeElement.value = '';

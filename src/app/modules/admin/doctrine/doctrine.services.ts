@@ -238,4 +238,12 @@ export class DoctrineService
         );
     }
 
+    AddToTopic(DoctrineGUID, TopicGUID){ 
+        var url = this.apiURL + DoctrineGUID + "/AddToTopic/" + TopicGUID
+        return  this._httpClient.post<iDoctrine>(url, null, this.getHeaders()).pipe();
+    }
+    RemoveFromTopic(DoctrineGUID, TopicGUID){ 
+        var url = this.apiURL + DoctrineGUID + "/RemoveFromTopic/" + TopicGUID
+        return  this._httpClient.delete<iDoctrine>(url, this.getHeaders()).pipe();
+    }
 }

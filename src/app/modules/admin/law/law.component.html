@@ -168,7 +168,32 @@
                                                     [formControlName]="'description'">
                                             </mat-form-field>
                                         </div>
-
+                                        <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Folders</mat-label>
+                                                <mat-chip-grid #chipGrid aria-label="Selected Folders">
+                                                    <ng-container *ngFor="let folder of folderLaw; trackBy: trackByFn">
+                                               
+                                                    <mat-chip-row (removed)="removeFolder(folder)">
+                                                      {{folder.name}}
+                                                      <button matChipRemove [attr.aria-label]="'remove ' + folder">
+                                                        <mat-icon>cancel</mat-icon>
+                                                      </button>
+                                                    </mat-chip-row>
+                                                    </ng-container>
+                                                </mat-chip-grid>
+                                                <input placeholder="Select Folder..." #folderInput [formControl]="folderCtrl"
+                                                  [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                                                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                  (matChipInputTokenEnd)="addFolder($event)"/>
+                                                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedFolder($event)">
+                                                    <ng-container *ngFor="let folder of filteredfolders$ | async ; trackBy: trackByFn">
+                                               
+                                                    <mat-option [value]="folder.guid">{{folder.name}}</mat-option>
+                                                    </ng-container>
+                                                </mat-autocomplete>
+                                              </mat-form-field>
+                                        </div>
                             </div>
                             
                             </div>
