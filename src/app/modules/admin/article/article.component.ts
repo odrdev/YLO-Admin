@@ -155,6 +155,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     }
     selectLaw(event){
         console.log(event)
+        this.selectedLaw = event.option.value;
     }
     displayLaw(law:iLaw){
 
@@ -181,7 +182,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             console.log(law)
             var sLaw =  law !== undefined ? law : this.laws[0];
             this.lawCtrl.setValue(sLaw)
-            this.selectedLaw = law;
+            this.selectedLaw = sLaw;
             this._ArticleService.getListPaging(sLaw.guid,"",0,10,"title","asc").subscribe(res=>{
                 console.log(res)
             });
