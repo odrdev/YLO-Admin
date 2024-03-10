@@ -3,7 +3,6 @@ import { ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot, Routes } from '
 import { TopicRouter } from './topic-router.component';
 import { TopicComponent } from './topic.component';
 import { TopicService } from './topic.services';
-import { ContentComponent } from '../content/content.component';
 
 export const TopicResolver: ResolveFn<any> = (
     route: ActivatedRouteSnapshot,

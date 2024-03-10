@@ -24,7 +24,6 @@ import { DateTime } from 'luxon';
 import { DoctrineService } from './doctrine.services';
 import { ActivatedRoute,Router } from '@angular/router';
 import { iDoctrine, iDoctrineList } from './doctrine.type';
-import { ContentComponent } from '../content/content.component';
 import { TopicService } from '../topic/topic.services';
 import { iTopic } from '../topic/topic.type';
 
@@ -104,7 +103,7 @@ import { iTopic } from '../topic/topic.type';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,ContentComponent,],
+    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy

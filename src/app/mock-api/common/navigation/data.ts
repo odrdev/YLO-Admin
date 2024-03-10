@@ -23,6 +23,20 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/law'
     },
     {
+        id   : 'm1-1',
+        title: 'Articles',
+        type : 'basic',
+        icon : 'heroicons_outline:wrench-screwdriver',
+        link : '/article'
+    },
+    {
+        id   : 'm1-2',
+        title: 'Sections',
+        type : 'basic',
+        icon : 'heroicons_outline:wrench-screwdriver',
+        link : '/section'
+    },
+    {
         id   : 'm2',
         title: 'Topics',
         type : 'basic',

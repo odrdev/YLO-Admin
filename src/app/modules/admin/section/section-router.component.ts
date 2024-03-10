@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-    selector       : 'content-router',
-    templateUrl    : 'content-router.component.html',
+    selector       : 'section-router',
+    templateUrl    : 'section-router.component.html',
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
     imports        : [RouterOutlet],
 })
-export class ContentRouter
+export class SectionRouter
 {
     /**
      * Constructor

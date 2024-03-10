@@ -9,16 +9,16 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take, tap, throwError } from 'rxjs';
 import { iPagination } from '../global.type';
 import { AuthService } from 'app/core/auth/auth.service';
-import { iArticle,iSection,iArticleList,iSectionList,iArticleResult,iSectionResult } from './content.type';
+import { iArticle, iArticleList, iArticleResult } from './article.type';
 @Injectable({providedIn: 'root'})
-export class ContentService
+export class ArticleService
 {
     // Private
 
     private _item: BehaviorSubject<iArticle | null> = new BehaviorSubject(null);
     private _List: BehaviorSubject<iArticle[] | null> = new BehaviorSubject(null);
     private _pagedList: BehaviorSubject<iArticleList[] | null> = new BehaviorSubject(null);
-    private apiURL = environment.apiendpoint + "Law/";
+    private apiURL = environment.apiendpoint + "Article/";
     private _pagination: BehaviorSubject<iPagination | null> = new BehaviorSubject(null);
 
     /**
@@ -93,7 +93,7 @@ export class ContentService
      * @param sortAscending
      * @param txtsearch
      */
-    getListPaging(txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iArticleResult>
+    getListPaging(lawGUID:string, txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iArticleResult>
     {
         
         var param = {
@@ -102,7 +102,7 @@ export class ContentService
             "pagesize": size,
             "sortField": sortField,
             "sortAscending": sortAscending !== 'desc' ? true : false          };
-        var url = this.apiURL + "Paging"
+        var url = this.apiURL + "Paging/" + lawGUID;
         console.log(param)
         return this._httpClient.post<iArticleResult>(url,param,this.getHeaders()).pipe(
             tap((res) =>

@@ -1,6 +1,6 @@
 import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,20 +17,24 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
+import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap, startWith } from 'rxjs';
 import { DateTime } from 'luxon';
-import { ContentService } from './content.services';
+import { ArticleService } from './article.services';
+import { LawService } from '../law/law.services';
 import { ActivatedRoute,Router } from '@angular/router';
-import { iArticle,iSection,iArticleList,iSectionList} from './content.type';
+import { iArticle, iArticleList } from './article.type';
+import { iLaw } from '../law/law.type';
+import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
 
 
 @Component({
-    selector       : 'Content',
-    templateUrl    : 'content.component.html',
+    selector       : 'article-component',
+    templateUrl    : 'article.component.html',
     styles         : [
         /* language=SCSS */
         `  
-            .subs-grid {
+            .article-grid {
                 grid-template-columns: 48px auto  100px 50px 50px 50px;
 
                 @screen sm {
@@ -100,17 +104,16 @@ import { iArticle,iSection,iArticleList,iSectionList} from './content.type';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
-export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
+export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
 {
-    @Output() HideContentEvent = new EventEmitter<boolean>();
     @ViewChild('paginatorArticle',{static: false}) private paginatorArticle: MatPaginator;
     @ViewChild(MatSort,{static:false}) private _sort: MatSort;
    
     isEditing: boolean = false;
-    ArticlePagedList$: Observable<iArticleList[]>;
+    PagedList$: Observable<iArticleList[]>;
     flashMessage: 'success' | 'error' | null = null;
     isLoading: boolean = false;
     pagination: iPagination;
@@ -120,48 +123,100 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
     newItem: boolean;
     toggleOpen: boolean = false;
     txtSearch = "";
+    showContent:boolean = false;
+    laws:iLaw[];
+    filteredLaws:iLaw[];
+    selectedLaw:iLaw;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    lawCtrl = new FormControl();
+    @ViewChild('lawInput') lawInput: ElementRef<HTMLInputElement>;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: UntypedFormBuilder,
-        private _contentService: ContentService,
+        private _ArticleService: ArticleService,
+        private _lawService: LawService,
         private activatedRoute: ActivatedRoute,
         private router:Router
     )
     {
-        console.log("Constructor")
+        console.log("Constructor");
+
+
+    }
+    filter(): void {
+        const filterValue = this.lawInput.nativeElement.value.toLowerCase();
+        this.filteredLaws = this.laws.filter(o => o.title.toLowerCase().includes(filterValue));
+      }
+    removeSelectedLaw(){
+        console.log("remove")
+        this.selectedLaw = null;
+        this.lawCtrl.setValue("");
+    }
+    selectLaw(event){
+        console.log(event)
+    }
+    displayLaw(law:iLaw){
+
+        return law && law.title ? law.title : law.guid;
     }
     ngOnInit(): void
     {
         console.log("On Init")
+        this.showContent = false;
+        this.activatedRoute.data.subscribe(({Laws}) => {
+            console.log("loaded data");
+            this._lawService.List$.subscribe(res=>{
+                console.log(res)
+                this.laws = res;
+                this.filteredLaws = res;
+            });
+
+          });
+
+        this.activatedRoute.queryParams.subscribe((lawGUID: any) => {
+            console.log("pass lawGUID")
+            console.log(lawGUID)
+            var law:iLaw = this.laws.find(item=>item.guid===lawGUID.lawGUID);
+            console.log(law)
+            var sLaw =  law !== undefined ? law : this.laws[0];
+            this.lawCtrl.setValue(sLaw)
+            this.selectedLaw = law;
+            this._ArticleService.getListPaging(sLaw.guid,"",0,10,"title","asc").subscribe(res=>{
+                console.log(res)
+            });
+          });
+
         // Create the selected product form
         this.selectedItemForm = this._formBuilder.group({
             id             : [0, [Validators.required]],
-            title             : ['', [Validators.required]],
-            subtitle             : [''],
-            description             : [''],
+            title          : ['', [Validators.required]],
+            lawGUID        : ['', [Validators.required]],
+            subtitle       : [''],
+            description    : [''],
+            visible        : [false],
+            tags           : [''],
 
         });
+
 
         //load data resolver
         console.log(this.activatedRoute.data)
-        this.activatedRoute.data.subscribe(({Articles}) => {
-            console.log("loaded data");
-          });
 
 
         //Get data observer and subscribe to data
-        this.ArticlePagedList$ = this._contentService.PagedList$;
+        this.PagedList$ = this._ArticleService.PagedList$;
 
-        this.ArticlePagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
-                console.log("subscribed")
+        this.PagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
+                console.log("Article subscribed")
                 console.log(res)
         });
 
+
+
+
        // Get the pagination and subscribe
-        this._contentService.pagination$
+        this._ArticleService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((pagination: iPagination) =>
             {
@@ -173,7 +228,20 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
                 this._changeDetectorRef.markForCheck();
             });
 
- 
+            this.lawCtrl.valueChanges
+            .pipe(
+                takeUntil(this._unsubscribeAll),
+                debounceTime(300),
+                switchMap((value) =>
+                {
+                   
+                    this.closeDetails();
+                    this.isLoading = true;
+                    return this._ArticleService.getListPaging(value.guid,this.txtSearch,0,this.paginatorArticle.pageSize,this._sort.active,this._sort.direction)
+                }),
+                map(()=>{
+                    this.isLoading = false
+                })).subscribe();
         // Subscribe to search input field value changes
         this.searchInputControl.valueChanges
         .pipe(
@@ -184,7 +252,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
                 this.txtSearch = query;
                 this.closeDetails();
                 this.isLoading = true;
-                return this._contentService.getListPaging(query.toLowerCase(),0,this.paginatorArticle.pageSize,this._sort.active,this._sort.direction)
+                return this._ArticleService.getListPaging(this.selectedLaw.guid, query.toLowerCase(),0,this.paginatorArticle.pageSize,this._sort.active,this._sort.direction)
             }),
             map(()=>{
                 this.isLoading = false
@@ -225,7 +293,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
                 {
                     this.closeDetails();
                     this.isLoading = true;
-                    return this._contentService.getListPaging(this.txtSearch,this.paginatorArticle.pageIndex,this.paginatorArticle.pageSize,this._sort.active, this._sort.direction);
+                    return this._ArticleService.getListPaging(this.selectedLaw.guid, this.txtSearch,this.paginatorArticle.pageIndex,this.paginatorArticle.pageSize,this._sort.active, this._sort.direction);
                 }),
                 map(() =>
                 {
@@ -269,7 +337,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
             return;
         }
 
-        this._contentService.getById(Id)
+        this._ArticleService.getById(Id)
         .subscribe((item) =>
         {
             console.log(item)
@@ -278,22 +346,24 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
           
             this.selectedItemForm.patchValue(itemForm);
             
-           
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
     }
 
-    hideContent()
+    toggleContent(event)
     {
-      this.HideContentEvent.emit(false);
-        
+        this.newItem = false;
+        this.closeDetails;
+        this.showContent=event;
     }
+    
     new(el:HTMLElement):void{
-        
+        console.log("New")
+        console.log(this.selectedLaw)
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',};
-        var newItem = {id:0, title:''};
+        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid};
+        var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
 
@@ -308,7 +378,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
     
         console.log(newItem)
         
-        this._contentService.create(newItem).subscribe((newItem) =>
+        this._ArticleService.create(newItem).subscribe((newItem) =>
         {
             // Go to new products
             this.selectedItem = newItem;
@@ -316,6 +386,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
             // Fill the form
             this.selectedItemForm.patchValue(newItem);
 
+ 
             // Mark for check
             this._changeDetectorRef.markForCheck();
             this.showFlashMessage('success');
@@ -330,7 +401,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
         const item = this.selectedItemForm.getRawValue();
 
         
-        this._contentService.update(item.id, item).subscribe({next: (event:any) =>{
+        this._ArticleService.update(item.id, item).subscribe({next: (event:any) =>{
             console.log('next');
             console.log(event);
             this.showFlashMessage('success');
@@ -368,7 +439,7 @@ export class ContentComponent implements OnInit, AfterViewInit, OnDestroy
                 const item = this.selectedItemForm.getRawValue();
 
                 // Delete the product on the server
-                this._contentService.delete(item.id).subscribe(() =>
+                this._ArticleService.delete(item.id).subscribe(() =>
                 {
                     // Close the details
                     this.closeDetails();

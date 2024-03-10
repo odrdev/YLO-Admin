@@ -1,6 +1,6 @@
 import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,24 +17,20 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap, startWith } from 'rxjs';
+import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
 import { DateTime } from 'luxon';
-import { LawService } from './law.services';
-import { FolderService } from '../folder/folder.services';
+import { SectionService } from './section.services';
 import { ActivatedRoute,Router } from '@angular/router';
-import { iLaw, iLawList } from './law.type';
-import { iFolder, iFolderList } from '../folder/folder.type';
-import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
+import { iSection,iSectionList} from './section.type';
 
 
 @Component({
-    selector       : 'Law',
-    templateUrl    : 'law.component.html',
+    selector       : 'section-component',
+    templateUrl    : 'section.component.html',
     styles         : [
         /* language=SCSS */
         `  
-            .law-grid {
+            .section-grid {
                 grid-template-columns: 48px auto  100px 50px 50px 50px;
 
                 @screen sm {
@@ -104,91 +100,68 @@ import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
+    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
-export class LawComponent implements OnInit, AfterViewInit, OnDestroy
+export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
 {
-    @ViewChild('paginatorLaw',{static: false}) private paginatorLaw: MatPaginator;
+    @Output() HideContentEvent = new EventEmitter<boolean>();
+    @ViewChild('paginatorSection',{static: false}) private paginatorSection: MatPaginator;
     @ViewChild(MatSort,{static:false}) private _sort: MatSort;
    
     isEditing: boolean = false;
-    PagedList$: Observable<iLawList[]>;
+    SectionPagedList$: Observable<iSectionList[]>;
     flashMessage: 'success' | 'error' | null = null;
     isLoading: boolean = false;
     pagination: iPagination;
     searchInputControl: UntypedFormControl = new UntypedFormControl();
-    selectedItem: iLaw| null = null;
+    selectedItem: iSection| null = null;
     selectedItemForm: UntypedFormGroup;
     newItem: boolean;
     toggleOpen: boolean = false;
     txtSearch = "";
-    folders:iFolder[];
-    filteredfolders$:Observable<iFolder[]>;
-    folderLaw: iFolder[];
-    deletedfolderLaw: iFolder[] = [];
-    folderCtrl = new FormControl('');
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-    @ViewChild('folderInput') folderInput: ElementRef<HTMLInputElement>;
+
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: UntypedFormBuilder,
-        private _LawService: LawService,
-        private _foldeService: FolderService,
+        private _SectionService: SectionService,
         private activatedRoute: ActivatedRoute,
         private router:Router
     )
     {
-        console.log("Constructor");
-        this.filteredfolders$ = this.folderCtrl.valueChanges.pipe(
-            startWith(null),
-            map((topic: string | null) => (topic ? this._filter(topic) : this.folders.slice())),
-          );
-
+        console.log("Constructor")
     }
-    private _filter(value: string): iFolder[] {
-        const filterValue = value.toLowerCase();
-    
-        return this.folders.filter(topic => topic.name.toLowerCase().includes(filterValue));
-      }
     ngOnInit(): void
     {
         console.log("On Init")
-
         // Create the selected product form
         this.selectedItemForm = this._formBuilder.group({
             id             : [0, [Validators.required]],
             title             : ['', [Validators.required]],
             subtitle             : [''],
             description             : [''],
-            tags             : [''],
 
         });
 
         //load data resolver
         console.log(this.activatedRoute.data)
-        this.activatedRoute.data.subscribe(({Laws}) => {
+        this.activatedRoute.data.subscribe(({Sections}) => {
             console.log("loaded data");
           });
 
-          console.log(this.activatedRoute.data)
-          this.activatedRoute.data.subscribe(({Folders}) => {
-              console.log("loaded data");
-            });
-        //Get data observer and subscribe to data
-        this.PagedList$ = this._LawService.PagedList$;
 
-        this.PagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
+        //Get data observer and subscribe to data
+        this.SectionPagedList$ = this._SectionService.PagedList$;
+
+        this.SectionPagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
                 console.log("subscribed")
                 console.log(res)
         });
 
-        this._foldeService.List$.subscribe(res=>{
-            this.folders = res;
-        })
        // Get the pagination and subscribe
-        this._LawService.pagination$
+        this._SectionService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((pagination: iPagination) =>
             {
@@ -211,7 +184,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 this.txtSearch = query;
                 this.closeDetails();
                 this.isLoading = true;
-                return this._LawService.getListPaging(query.toLowerCase(),0,this.paginatorLaw.pageSize,this._sort.active,this._sort.direction)
+                return this._SectionService.getListPaging(query.toLowerCase(),0,this.paginatorSection.pageSize,this._sort.active,this._sort.direction)
             }),
             map(()=>{
                 this.isLoading = false
@@ -222,7 +195,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     {
         console.log("After View Init");
         console.log(this._sort)
-        if ( this._sort && this.paginatorLaw )
+        if ( this._sort && this.paginatorSection )
         {
             // Set the initial sort
             this._sort.sort({
@@ -240,19 +213,19 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 .subscribe(() =>
                 {
                     // Reset back to the first page
-                    this.paginatorLaw.pageIndex = 0;
+                    this.paginatorSection.pageIndex = 0;
                     console.log("sort")
                     // Close the details
                     this.closeDetails();
                 });
 
             // Get products if sort or page changes
-            merge(this._sort.sortChange, this.paginatorLaw.page).pipe(
+            merge(this._sort.sortChange, this.paginatorSection.page).pipe(
                 switchMap(() =>
                 {
                     this.closeDetails();
                     this.isLoading = true;
-                    return this._LawService.getListPaging(this.txtSearch,this.paginatorLaw.pageIndex,this.paginatorLaw.pageSize,this._sort.active, this._sort.direction);
+                    return this._SectionService.getListPaging(this.txtSearch,this.paginatorSection.pageIndex,this.paginatorSection.pageSize,this._sort.active, this._sort.direction);
                 }),
                 map(() =>
                 {
@@ -296,7 +269,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
             return;
         }
 
-        this._LawService.getById(Id)
+        this._SectionService.getById(Id)
         .subscribe((item) =>
         {
             console.log(item)
@@ -305,26 +278,25 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
           
             this.selectedItemForm.patchValue(itemForm);
             
-            this._foldeService.getByLaw(item.guid).subscribe(res=>{
-                console.log(res);
-                this.folderLaw = res;
-                this._changeDetectorRef.markForCheck();
-            })
+           
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
     }
 
-    
+    hideContent()
+    {
+      this.HideContentEvent.emit(false);
+        
+    }
     new(el:HTMLElement):void{
         
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:""};
-        var newItem = {id:0, title:'',subtitle:"",description:"",tags:""};
+        var newItemForm = {id:0, title:'',};
+        var newItem = {id:0, title:''};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
-        this.folderLaw = [];
-        this.deletedfolderLaw = [];
+
         this._changeDetectorRef.markForCheck();
         el.scrollIntoView();
     }
@@ -336,7 +308,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     
         console.log(newItem)
         
-        this._LawService.create(newItem).subscribe((newItem) =>
+        this._SectionService.create(newItem).subscribe((newItem) =>
         {
             // Go to new products
             this.selectedItem = newItem;
@@ -344,12 +316,6 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
             // Fill the form
             this.selectedItemForm.patchValue(newItem);
 
-             //add Law to Folder
-             this.folderLaw.forEach(item=>{
-                this._foldeService.AddLaw(item.guid, newItem.guid).subscribe(res=>{
-                    console.log("Law added to Folder");
-                });
-            })    
             // Mark for check
             this._changeDetectorRef.markForCheck();
             this.showFlashMessage('success');
@@ -364,25 +330,11 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         const item = this.selectedItemForm.getRawValue();
 
         
-        this._LawService.update(item.id, item).subscribe({next: (event:any) =>{
+        this._SectionService.update(item.id, item).subscribe({next: (event:any) =>{
             console.log('next');
             console.log(event);
             this.showFlashMessage('success');
             this.newItem = false;
-
-    
-            this.deletedfolderLaw.forEach(res=>{
-                this._foldeService.RemoveLaw(res.guid, this.selectedItem.guid).subscribe(x=>{
-                    console.log("cleared folder");
-                    
-            });     
-            });
-            this.folderLaw.forEach(res=>{
-                this._foldeService.AddLaw(res.guid, this.selectedItem.guid).subscribe(res=>{
-                    console.log("added to folder");
-                });
-            });
-            this.deletedfolderLaw = [];
               
         },complete(){
             console.log('complete');
@@ -416,7 +368,7 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
                 const item = this.selectedItemForm.getRawValue();
 
                 // Delete the product on the server
-                this._LawService.delete(item.id).subscribe(() =>
+                this._SectionService.delete(item.id).subscribe(() =>
                 {
                     // Close the details
                     this.closeDetails();
@@ -454,44 +406,5 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
     {
         return item.id || index;
     }
-    addFolder(event: MatChipInputEvent): void {
-        const value = (event.value || '').trim();
-    
-        var folder = this.folders.find(t=>t.name===event.value);
-        // Add our fruit
-        if (value) {
-          this.folderLaw.push(folder);
-        }
-    
-        // Clear the input value
-        event.chipInput!.clear();
-    
-        this.folderCtrl.setValue(null);
-      }
-    
-      removeFolder(folder): void {
-        console.log(folder)
-        const index = this.folderLaw.indexOf(folder);
-    
-        if (index >= 0) {
-          this.folderLaw.splice(index, 1);
-        }
-      }
-    
-      selectedFolder(event: MatAutocompleteSelectedEvent): void {
-        var folder = this.folders.find(t=>t.guid===event.option.value);
-        
-        if(folder !== undefined){
-            this.folderLaw.push(folder);
-            
-        }
-        console.log( this.folderLaw)
-        this.folderInput.nativeElement.value = '';
-        this.folderCtrl.setValue(null);
-      }
-
-      toggleContent(item:iLaw){
-         this.router.navigate(['article'],{ queryParams: { lawGUID: item.guid }});
-      }
 
 }

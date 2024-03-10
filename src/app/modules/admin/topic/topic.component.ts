@@ -22,7 +22,6 @@ import { DateTime } from 'luxon';
 import { TopicService } from './topic.services';
 import { ActivatedRoute,Router } from '@angular/router';
 import { iTopic, iTopicList } from './topic.type';
-import { ContentComponent } from '../content/content.component';
 
 
 @Component({
@@ -101,7 +100,7 @@ import { ContentComponent } from '../content/content.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,ContentComponent,],
+    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
