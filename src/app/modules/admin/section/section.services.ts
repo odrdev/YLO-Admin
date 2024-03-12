@@ -93,7 +93,7 @@ export class SectionService
      * @param sortAscending
      * @param txtsearch
      */
-    getListPaging(txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iSectionResult>
+    getListPaging(articleGUID, txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iSectionResult>
     {
         
         var param = {
@@ -102,7 +102,7 @@ export class SectionService
             "pagesize": size,
             "sortField": sortField,
             "sortAscending": sortAscending !== 'desc' ? true : false          };
-        var url = this.apiURL + "Paging"
+        var url = this.apiURL + "Paging/"+articleGUID
         console.log(param)
         return this._httpClient.post<iSectionResult>(url,param,this.getHeaders()).pipe(
             tap((res) =>

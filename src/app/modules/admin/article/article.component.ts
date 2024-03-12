@@ -183,7 +183,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             var sLaw =  law !== undefined ? law : this.laws[0];
             this.lawCtrl.setValue(sLaw)
             this.selectedLaw = sLaw;
-            this._ArticleService.getListPaging(sLaw.guid,"",0,10,"title","asc").subscribe(res=>{
+            this._ArticleService.getListPaging(sLaw.guid,"",0,10,"id","asc").subscribe(res=>{
                 console.log(res)
             });
           });
@@ -352,16 +352,12 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
         });
     }
 
-    toggleContent(event)
-    {
-        this.newItem = false;
-        this.closeDetails;
-        this.showContent=event;
-    }
+    toggleContent(item:iArticle){
+        this.router.navigate(['section'],{ queryParams: { articleGUID: item.guid }});
+     }
     
     new(el:HTMLElement):void{
         console.log("New")
-        console.log(this.selectedLaw)
         this.newItem = true; 
         var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid};
         var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid};

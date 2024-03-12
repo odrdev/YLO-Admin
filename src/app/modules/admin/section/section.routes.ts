@@ -3,12 +3,20 @@ import { ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot, Routes } from '
 import { SectionRouter } from './section-router.component';
 import { SectionComponent } from './section.component';
 import { SectionService } from './section.services';
+import { ArticleService } from '../article/article.services';
+import { LawService } from '../law/law.services';
 
-export const SectionResolver: ResolveFn<any> = (
+export const ArticleResolver: ResolveFn<any> = (
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ) => {
-    return inject(SectionService).getListPaging("",0,10,"title","asc");
+    return inject(ArticleService).getList();
+  };
+export const LawResolver: ResolveFn<any> = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ) => {
+    return inject(LawService).getList();
   };
 export default [
     {
@@ -19,7 +27,7 @@ export default [
             {
                 path     : '',
                 component: SectionComponent,
-                resolve  : {Sections:SectionResolver},
+                resolve  : {Articles:ArticleResolver,Laws:LawResolver},
             },
         ],
     }

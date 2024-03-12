@@ -53,12 +53,12 @@
 
         <!-- Products list -->
         <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto" #newItemSection >
-            <ng-container  *ngIf="(SectionPagedList$ | async) as items" >
+            <ng-container  *ngIf="SectionPagedList as items" >
                 <ng-container>
                     <div class="grid">
                         <!-- Header -->
                         <div
-                            class="subs-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+                            class="section-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
                             matSort
                             matSortDisableClear>
                             <div
@@ -68,9 +68,8 @@
                             </div>
                             <div [mat-sort-header]="'title'">Title</div>
                             <div [mat-sort-header]="'subtitle'">Subtitle</div>
-                            <div [mat-sort-header]="'version'" class="hidden sm:block">Version</div>
+                            <div [mat-sort-header]="'version'" class="hidden sm:block">Order</div>
                             <div class="hidden sm:block">Details</div>
-                            <div class="hidden sm:block">Content</div>
                         </div>
                         <!-- Rows -->
                         <div class="grid" >
@@ -79,55 +78,47 @@
                             </ng-container>
                         </div>
                         <ng-container *ngIf="items.length > 0; else noData">
-                        <ng-container *ngIf="(SectionPagedList$ | async) as items">
-                            <ng-container *ngFor="let item of items; trackBy: trackByFn">
-                                <div class="subs-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
-
-                                    <div class="truncate hidden md:block ">
-                                        {{item.id}}
+                        <ng-container *ngIf="SectionPagedList as items">
+                            <div class="section-table" cdkDropList (cdkDropListDropped)="drop($event)">
+                                <ng-container *ngFor="let item of items; trackBy: trackByFn" >
+                                    <div class="section-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b" cdkDrag>
+    
+                                        <div class="truncate hidden md:block ">
+                                            {{item.id}}
+                                        </div>
+    
+                                        <!-- Name -->
+                                        <div class="truncate">
+                                            <p>{{item.title}}</p>                         
+                                        </div>
+    
+                                        <!-- Service Type -->
+                                        <div class="text hidden sm:block text-center">
+                                            <!-- {{pliServices[product.serviceId-1].name}} -->
+                                            {{item.subtitle}}
+                                        </div>
+                                        <div class="text hidden sm:block text-center">
+                                            {{item.section_order}}
+                                        </div>
+                                        <!-- Details button -->
+                                        <div>
+                                            <button
+                                                class="min-w-10 min-h-7 h-7 px-2 leading-6"
+                                                mat-stroked-button
+                                                (click)="toggleDetails(item.id)">
+                                                <mat-icon
+                                                    class="icon-size-5"
+                                                    [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
+                                            </button>
+                                        </div>
+                                     </div>
+                                    <div class="grid">
+                                        <ng-container *ngIf="selectedItem?.id === item.id">
+                                            <ng-container *ngTemplateOutlet="rowDetailsTemplate; context: {$implicit: item}"></ng-container>
+                                        </ng-container>
                                     </div>
-
-                                    <!-- Name -->
-                                    <div class="truncate">
-                                        <p>{{item.title}}</p>                         
-                                    </div>
-
-                                    <!-- Service Type -->
-                                    <div class="text hidden sm:block text-center">
-                                        <!-- {{pliServices[product.serviceId-1].name}} -->
-                                        {{item.subtitle}}
-                                    </div>
-                                    <div class="text hidden sm:block text-center">
-                                        {{item.version}}
-                                    </div>
-                                    <!-- Details button -->
-                                    <div>
-                                        <button
-                                            class="min-w-10 min-h-7 h-7 px-2 leading-6"
-                                            mat-stroked-button
-                                            (click)="toggleDetails(item.id)">
-                                            <mat-icon
-                                                class="icon-size-5"
-                                                [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
-                                        </button>
-                                    </div>
-                                    <div>
-                                        <button
-                                            class="min-w-10 min-h-7 h-7 px-2 leading-6"
-                                            mat-stroked-button
-                                            (click)="viewContent(item.id)">
-                                            <mat-icon
-                                                class="icon-size-5"
-                                                [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-right' : 'heroicons_solid:chevron-right'"></mat-icon>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="grid">
-                                    <ng-container *ngIf="selectedItem?.id === item.id">
-                                        <ng-container *ngTemplateOutlet="rowDetailsTemplate; context: {$implicit: item}"></ng-container>
-                                    </ng-container>
-                                </div>
-                            </ng-container>
+                                </ng-container>
+                            </div>
                         </ng-container>
                         </ng-container>
                     </div>
@@ -176,6 +167,12 @@
                                                 <input
                                                     matInput
                                                     [formControlName]="'description'">
+                                            </mat-form-field>
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Order</mat-label>
+                                                <input
+                                                    matInput type="number" (min)="1" (max)="max"
+                                                    [formControlName]="'section_order'">
                                             </mat-form-field>
                                         </div>
 

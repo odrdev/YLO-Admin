@@ -103,7 +103,7 @@ import { iTopic } from '../topic/topic.type';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
+    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
