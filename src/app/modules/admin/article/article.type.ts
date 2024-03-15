@@ -10,7 +10,7 @@ export interface iArticleList
     version?:number
     isPublished?: boolean;
     guid?: string;
-    lawGuid?:string;
+    lawGUID?:string;
     article_order?:number;
 }
 
@@ -24,7 +24,7 @@ export interface iArticle
     version?:number
     isPublished?: boolean;
     guid?: string;
-    lawGuid?:string;
+    lawGUID?:string;
     article_order?:number;
 }
 

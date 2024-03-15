@@ -25,7 +25,9 @@ import { ActivatedRoute,Router } from '@angular/router';
 import { iSection,iSectionList} from './section.type';
 import { iArticle } from '../article/article.type';
 import { ArticleService } from '../article/article.services';
-
+import { LawService } from '../law/law.services';
+import { iLaw } from '../law/law.type';
+import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @Component({
     selector       : 'section-component',
@@ -36,7 +38,7 @@ import { ArticleService } from '../article/article.services';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, CdkDropList, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [NgIf, CdkDropList, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
 export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
@@ -60,6 +62,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     articles: iArticle[];
     filteredArticles: iArticle[];
     selectedArticle:iArticle;
+    selectedLaw:iLaw;
     articleCtrl = new FormControl();
     max=10;
     @ViewChild('articleInput') articleInput: ElementRef<HTMLInputElement>;
@@ -72,6 +75,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         private _SectionService: SectionService,
         private activatedRoute: ActivatedRoute,
         private _ArticleService: ArticleService,
+        private _LawService: LawService,
         private router:Router
     )
     {
@@ -90,6 +94,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     selectArticle(event){
         console.log(event)
         this.selectedArticle = event.option.value;
+
     }
     displayArticle(article:iArticle){
 
@@ -128,10 +133,15 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
             console.log("pass article guid")
             console.log(articleGUID)
             var article:iArticle = this.articles.find(item=>item.guid===articleGUID.articleGUID);
-            console.log(article)
+            
             var sArticle =  article !== undefined ? article : this.articles[0];
             this.articleCtrl.setValue(sArticle)
             this.selectedArticle = sArticle;
+           
+            console.log(sArticle)
+            this._LawService.getbyGUID(sArticle.lawGUID).subscribe(res=>{
+                this.selectedLaw = res;
+            });
             this._SectionService.getListPaging(sArticle.guid,"",0,10,"section_order","asc").subscribe(res=>{
                 console.log(res)
             });
@@ -173,7 +183,8 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
                    
                     this.closeDetails();
                     this.isLoading = true;
-                    return this._ArticleService.getListPaging(this.selectedArticle.guid, this.txtSearch,0,this.paginatorSection.pageSize,this._sort.active,this._sort.direction)
+                    console.log(value)
+                    return this._SectionService.getListPaging(value.guid, this.txtSearch,0,this.paginatorSection.pageSize,this._sort.active,this._sort.direction)
                 }),
                 map(()=>{
                     this.isLoading = false

@@ -9,19 +9,27 @@
             <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
         </div>
         <!-- Title -->
-        <div>
-            <button
-            class="min-w-10 min-h-7 h-7 px-2 leading-6"
-            mat-stroked-button
-            (click)="hideContent()">
-            <mat-icon
-                class="icon-size-5"
-                [svgIcon]="'heroicons_solid:chevron-left'"></mat-icon>
-        </button>
-        </div>
         <div class="text-4xl font-extrabold tracking-tight">Sections</div>
         <!-- Actions -->
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <!-- Law Selection-->
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-96">
+                <mat-label>Article</mat-label>
+                <input #articleInput
+                       type="text"
+                       placeholder="Select Article"
+                       matInput
+                       [formControl]="articleCtrl"
+                       [matAutocomplete]="auto"
+                       (input)="filter()"
+                       (focus)="filter()">
+                <mat-icon matSuffix (click)="removeSelectedArticle()">highlight_off</mat-icon>       
+                <mat-autocomplete requireSelection #auto="matAutocomplete" (optionSelected)="selectArticle($event)" [displayWith]="displayArticle">
+                    <ng-container *ngFor="let article of filteredArticles; trackBy: trackByFn">
+                        <mat-option [value]="article">{{article.title}}</mat-option>
+                    </ng-container>
+                </mat-autocomplete>
+              </mat-form-field>
             <!-- Search -->
             <mat-form-field
                 class="fuse-mat-dense fuse-mat-rounded min-w-64"
@@ -34,7 +42,7 @@
                     matInput
                     [formControl]="searchInputControl"
                     [autocomplete]="'off'"
-                    [placeholder]="'Search Law'">
+                    [placeholder]="'Search Section'">
             </mat-form-field>
             <!-- Add product button -->
             <button
@@ -47,7 +55,12 @@
             </button>
         </div>
     </div>
-
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-3 px-6 md:px-8 border-b">
+        <div class="text-base font-semibold">{{selectedArticle && selectedArticle.title}}, {{selectedLaw && selectedLaw.title}}</div>
+        <button mat-icon-button color="primary" aria-label="preview">
+            <mat-icon>visibility</mat-icon>
+          </button>
+    </div>
     <!-- Main -->
     <div class="flex flex-auto overflow-hidden">
 

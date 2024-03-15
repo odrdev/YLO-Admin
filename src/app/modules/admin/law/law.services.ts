@@ -118,7 +118,11 @@ export class LawService
         );
     }
 
-    
+    getbyGUID(guid:any):Observable<iLaw>
+    {
+        var url = this.apiURL + "guid/" +guid;
+        return this._httpClient.get<iLaw>(url,this.getHeaders());
+    }
 
     getById(id:any): Observable<iLaw>
     {
