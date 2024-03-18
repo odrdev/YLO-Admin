@@ -26,85 +26,17 @@ import { iArticle, iArticleList } from './article.type';
 import { iLaw } from '../law/law.type';
 import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
-
+import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
     selector       : 'article-component',
     templateUrl    : 'article.component.html',
-    styles         : [
-        /* language=SCSS */
-        `  
-            .article-grid {
-                grid-template-columns: 48px auto  100px 50px 50px 50px;
-
-                @screen sm {
-                    grid-template-columns: 48px auto  150px 50px 50px  50px;
-                }
-
-                @screen md {
-                    grid-template-columns: 48px auto  150px 96px 72px  72px; 
-                }
-
-                @screen lg {
-                    grid-template-columns: 48px auto  250px 96px 72px  72px ;
-                }
-            }
-            .file-input {
-
-                display: none;
-              
-              }
-
-              .edit-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center; /* Center horizontally */
-                align-items: center; /* Center vertically */
-                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-                backdrop-filter: blur(5px); /* Blur the background */
-                z-index: 100
-            }
-
-            .edit-dialog {
-                background-color: white;
-                padding: 20px;
-                width: 40%;
-                min-width: 221.594px;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
-            }
-
-            .circle{
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-            }
-            .red{
-                color: red;
-            }
-
-            p{
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .description{
-                opacity: 70%;
-                font-size: 12px;
-            }
- 
-        `,
-    ],
+    styleUrls      : ['article.component.scss'],
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
+    imports        : [ NgIf, CdkDropList, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
@@ -127,6 +59,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     laws:iLaw[];
     filteredLaws:iLaw[];
     selectedLaw:iLaw;
+    articlePagedList:iArticleList[];
+    max = 0;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     lawCtrl = new FormControl();
     @ViewChild('lawInput') lawInput: ElementRef<HTMLInputElement>;
@@ -161,6 +95,24 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
 
         return law && law.title ? law.title : law.guid;
     }
+    drop(event: CdkDragDrop<iArticle[]>) {
+        var dropItem = this.articlePagedList[event.previousIndex];
+        var displacedItem = this.articlePagedList[event.currentIndex]
+        
+        console.log("Drag drop")
+
+        console.log(event)
+        console.log(displacedItem)
+        //update order in API
+        var newOrderNumber = displacedItem.article_order;
+        this._ArticleService.reorder(this.selectedLaw.guid, dropItem.id, newOrderNumber).subscribe(res=>{
+            console.log('moved Items')
+            this._ArticleService.getListPaging(this.selectedLaw.guid, this.txtSearch,0,this.paginatorArticle.pageSize,"article_order","asc")
+             .subscribe(res=>{console.log('update table')})
+           
+        })
+        moveItemInArray(this.articlePagedList, event.previousIndex, event.currentIndex);
+      }
     ngOnInit(): void
     {
         console.log("On Init")
@@ -197,6 +149,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             description    : [''],
             visible        : [false],
             tags           : [''],
+            article_order  : [0]
 
         });
 
@@ -211,6 +164,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
         this.PagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
                 console.log("Article subscribed")
                 console.log(res)
+                this.max = res ? res.length + 1 : 1;
+                this.articlePagedList = res;
         });
 
 
@@ -359,8 +314,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     new(el:HTMLElement):void{
         console.log("New")
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid};
-        var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid};
+        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid,article_order:this.max};
+        var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid,article_order:this.max};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
 

@@ -75,14 +75,17 @@
                             class="article-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
                             matSort
                             matSortDisableClear>
+                            <div>
+
+                            </div>
                             <div
                                 class="hidden md:block"
                                 [mat-sort-header]="'id'">
                                 ID
                             </div>
                             <div [mat-sort-header]="'title'">Title</div>
-                            <div [mat-sort-header]="'subtitle'">Subtitle</div>
-                            <div [mat-sort-header]="'version'" class="hidden sm:block">Version</div>
+                            <div [mat-sort-header]="'subtitle'" class="hidden md:block">Subtitle</div>
+                            <div [mat-sort-header]="'article_order'" class="hidden sm:block">Order</div>
                             <div class="hidden sm:block">Details</div>
                             <div class="hidden sm:block">Content</div>
                         </div>
@@ -93,10 +96,13 @@
                             </ng-container>
                         </div>
                         <ng-container *ngIf="items.length > 0; else noData">
-                        <ng-container *ngIf="(PagedList$ | async) as items">
+                        <ng-container *ngIf="articlePagedList as items">
+                            <div class="article-table" cdkDropList (cdkDropListDropped)="drop($event)">
                             <ng-container *ngFor="let item of items; trackBy: trackByFn">
-                                <div class="article-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
-
+                                <div class="article-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b" cdkDrag>
+                                    <div>
+                                        <mat-icon>reorder</mat-icon>
+                                    </div>
                                     <div class="truncate hidden md:block ">
                                         {{item.id}}
                                     </div>
@@ -107,12 +113,12 @@
                                     </div>
 
                                     <!-- Service Type -->
-                                    <div class="text hidden sm:block text-center">
+                                    <div class="text hidden md:block truncate">
                                         <!-- {{pliServices[product.serviceId-1].name}} -->
                                         {{item.subtitle}}
                                     </div>
                                     <div class="text hidden sm:block text-center">
-                                        {{item.version}}
+                                        {{item.article_order}}
                                     </div>
                                     <!-- Details button -->
                                     <div>
@@ -142,6 +148,7 @@
                                     </ng-container>
                                 </div>
                             </ng-container>
+                            </div>
                         </ng-container>
                         </ng-container>
                     </div>

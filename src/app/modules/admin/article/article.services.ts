@@ -237,5 +237,11 @@ export class ArticleService
             )),
         );
     }
+    reorder(articleId, LawGUID, orderNumber): Observable<any>
+    {
+        var url = this.apiURL +"reorder/" + articleId + "?LawGUID="+LawGUID+"&sectionOrder="+orderNumber
+        return this._httpClient.post<iArticle>(url, null, this.getHeaders());
+        
+    }
 
 }

@@ -100,7 +100,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
 
         return article && article.title ? article.title : article.guid;
     }
-    drop(event: CdkDragDrop<iArticle[]>) {
+    drop(event: CdkDragDrop<iSection[]>) {
         var dropItem = this.SectionPagedList[event.previousIndex];
         var displacedItem = this.SectionPagedList[event.currentIndex]
         
