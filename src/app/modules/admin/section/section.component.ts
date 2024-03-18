@@ -101,10 +101,22 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         return article && article.title ? article.title : article.guid;
     }
     drop(event: CdkDragDrop<iArticle[]>) {
-        moveItemInArray(this.SectionPagedList, event.previousIndex, event.currentIndex);
+        var dropItem = this.SectionPagedList[event.previousIndex];
+        var displacedItem = this.SectionPagedList[event.currentIndex]
+        
         console.log("Drag drop")
+
         console.log(event)
+        console.log(displacedItem)
         //update order in API
+        var newOrderNumber = displacedItem.section_order;
+        this._SectionService.reorder(this.selectedArticle.guid, dropItem.id, newOrderNumber).subscribe(res=>{
+            console.log('moved Items')
+            this._SectionService.getListPaging(this.selectedArticle.guid, this.txtSearch,0,this.paginatorSection.pageSize,"section_order","asc")
+             .subscribe(res=>{console.log('update table')})
+           
+        })
+        moveItemInArray(this.SectionPagedList, event.previousIndex, event.currentIndex);
       }
     ngOnInit(): void
     {
@@ -154,7 +166,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         this.SectionPagedList$ = this._SectionService.PagedList$;
 
         this.SectionPagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe((res:iSectionList[])=>{
-                console.log("subscribed")
+                console.log("subscribed to pagedlist$")
                 console.log(res)
            
                 this.max = res ? res.length + 1 : 1;
@@ -184,7 +196,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
                     this.closeDetails();
                     this.isLoading = true;
                     console.log(value)
-                    return this._SectionService.getListPaging(value.guid, this.txtSearch,0,this.paginatorSection.pageSize,this._sort.active,this._sort.direction)
+                    return this._SectionService.getListPaging(value.guid, this.txtSearch,0,this.paginatorSection.pageSize,"section_order","asc")
                 }),
                 map(()=>{
                     this.isLoading = false

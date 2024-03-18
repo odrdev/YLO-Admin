@@ -238,4 +238,11 @@ export class SectionService
         );
     }
 
+    reorder(articleId, sectionId, orderNumber): Observable<any>
+    {
+        var url = this.apiURL +"reorder/" + sectionId + "?ArticleGUID="+articleId+"&sectionOrder="+orderNumber
+        return this._httpClient.post<iSection>(url, null, this.getHeaders());
+        
+    }
+
 }

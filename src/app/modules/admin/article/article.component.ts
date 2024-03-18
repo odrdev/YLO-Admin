@@ -183,7 +183,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             var sLaw =  law !== undefined ? law : this.laws[0];
             this.lawCtrl.setValue(sLaw)
             this.selectedLaw = sLaw;
-            this._ArticleService.getListPaging(sLaw.guid,"",0,10,"id","asc").subscribe(res=>{
+            this._ArticleService.getListPaging(sLaw.guid,"",0,10,"article_order","asc").subscribe(res=>{
                 console.log(res)
             });
           });
@@ -268,7 +268,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
         {
             // Set the initial sort
             this._sort.sort({
-                id          : 'title',
+                id          : 'article_order',
                 start       : 'asc',
                 disableClear: true,
             });

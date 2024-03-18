@@ -74,14 +74,17 @@
                             class="section-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
                             matSort
                             matSortDisableClear>
+                            <div>
+
+                            </div>
                             <div
                                 class="hidden md:block"
                                 [mat-sort-header]="'id'">
                                 ID
                             </div>
                             <div [mat-sort-header]="'title'">Title</div>
-                            <div [mat-sort-header]="'subtitle'">Subtitle</div>
-                            <div [mat-sort-header]="'version'" class="hidden sm:block">Order</div>
+                            <div [mat-sort-header]="'subtitle'"  class="hidden md:block" >Subtitle</div>
+                            <div [mat-sort-header]="'section_order'" class="hidden sm:block">Order</div>
                             <div class="hidden sm:block">Details</div>
                         </div>
                         <!-- Rows -->
@@ -95,7 +98,9 @@
                             <div class="section-table" cdkDropList (cdkDropListDropped)="drop($event)">
                                 <ng-container *ngFor="let item of items; trackBy: trackByFn" >
                                     <div class="section-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b" cdkDrag>
-    
+                                        <div>
+                                            <mat-icon>reorder</mat-icon>
+                                        </div>
                                         <div class="truncate hidden md:block ">
                                             {{item.id}}
                                         </div>
@@ -106,8 +111,8 @@
                                         </div>
     
                                         <!-- Service Type -->
-                                        <div class="text hidden sm:block text-center">
-                                            <!-- {{pliServices[product.serviceId-1].name}} -->
+                                        <div class="text hidden md:block">
+                                           
                                             {{item.subtitle}}
                                         </div>
                                         <div class="text hidden sm:block text-center">
@@ -181,12 +186,12 @@
                                                     matInput
                                                     [formControlName]="'description'">
                                             </mat-form-field>
-                                            <mat-form-field class="w-full">
+                                            <!-- <mat-form-field class="w-full">
                                                 <mat-label>Order</mat-label>
                                                 <input
                                                     matInput type="number" (min)="1" (max)="max"
                                                     [formControlName]="'section_order'">
-                                            </mat-form-field>
+                                            </mat-form-field> -->
                                         </div>
 
                             </div>
