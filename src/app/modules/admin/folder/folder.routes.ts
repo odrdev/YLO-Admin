@@ -8,7 +8,7 @@ export const folderResolver: ResolveFn<any> = (
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
   ) => {
-    return inject(FolderService).getListPaging("",0,10,"name","asc");
+    return inject(FolderService).getListPaging("",0,10,"folder_order","asc");
   };
 export default [
     {

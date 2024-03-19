@@ -35,18 +35,18 @@ import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
         /* language=SCSS */
         `  
             .law-grid {
-                grid-template-columns: 48px auto  100px 50px 50px 50px;
+                grid-template-columns: auto  48px 48px;
 
                 @screen sm {
                     grid-template-columns: 48px auto  150px 50px 50px  50px;
                 }
 
                 @screen md {
-                    grid-template-columns: 48px auto  150px 96px 72px  72px; 
+                    grid-template-columns: 48px auto  150px 96px 72px 72px; 
                 }
 
                 @screen lg {
-                    grid-template-columns: 48px auto  250px 96px 72px  72px ;
+                    grid-template-columns: 48px auto  250px 96px 72px 72px ;
                 }
             }
             .file-input {

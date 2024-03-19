@@ -261,4 +261,10 @@ export class FolderService
         var url = this.apiURL + FolderGUID + "/RemoveLaw/" + TopicGUID
         return  this._httpClient.delete(url, this.getHeaders()).pipe();
     }
+    reorder(folderId,orderNumber): Observable<any>
+    {
+        var url = this.apiURL +"reorder/" + folderId + "?FolderOrder="+orderNumber
+        return this._httpClient.post<iFolder>(url, null, this.getHeaders());
+        
+    }
 }

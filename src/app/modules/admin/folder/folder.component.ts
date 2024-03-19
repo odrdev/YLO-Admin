@@ -22,7 +22,7 @@ import { DateTime } from 'luxon';
 import { FolderService } from './folder.services';
 import { ActivatedRoute } from '@angular/router';
 import { iFolder, iFolderList } from './folder.type';
-
+import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
     selector       : 'folder',
@@ -31,18 +31,18 @@ import { iFolder, iFolderList } from './folder.type';
         /* language=SCSS */
         `  
             .subs-grid {
-                grid-template-columns: 48px auto  50px 50px 50px;
+                grid-template-columns: 48px auto  50px;
 
                 @screen sm {
-                    grid-template-columns: 48px auto  50px 50px 50px;
+                    grid-template-columns: 48px 48px auto  50px 50px;
                 }
 
                 @screen md {
-                    grid-template-columns: 48px auto  96px 96px 72px; 
+                    grid-template-columns: 48px 48px auto  96px 96px; 
                 }
 
                 @screen lg {
-                    grid-template-columns: 48px auto  96px 96px 72px  ;
+                    grid-template-columns: 48px 48px auto  96px 96px  ;
                 }
             }
             .file-input {
@@ -93,6 +93,28 @@ import { iFolder, iFolderList } from './folder.type';
                 opacity: 70%;
                 font-size: 12px;
             }
+
+            .cdk-drag-preview {
+                box-sizing: border-box;
+                border-radius: 4px;
+                box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                            0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                            0 3px 14px 2px rgba(0, 0, 0, 0.12);
+              }
+              
+              .cdk-drag-placeholder {
+                opacity: 0;
+              }
+              
+              .cdk-drag-animating {
+                transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+              }
+              
+             
+              
+              .folder-table.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+                transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+              }
  
         `,
     ],
@@ -100,7 +122,7 @@ import { iFolder, iFolderList } from './folder.type';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [NgIf, CdkDropList, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
 export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
@@ -119,6 +141,7 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
     newItem: boolean;
     toggleOpen: boolean = false;
     txtSearch = "";
+    FolderPagedList:iFolderList[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     constructor(
@@ -131,6 +154,25 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
     {
         console.log("Constructor")
     }
+    drop(event: CdkDragDrop<iFolder[]>) {
+        var dropItem = this.FolderPagedList[event.previousIndex];
+        var displacedItem = this.FolderPagedList[event.currentIndex]
+        
+        console.log("Drag drop")
+
+        console.log(event)
+        console.log(displacedItem)
+        //update order in API
+        var newOrderNumber = displacedItem.folder_order;
+        this._folderService.reorder(dropItem.id, newOrderNumber).subscribe(res=>{
+            console.log('moved Items')
+            this._folderService.getListPaging( this.txtSearch,0,this._paginator.pageSize,"folder_order","asc")
+             .subscribe(res=>{console.log('update table')})
+           
+        })
+        moveItemInArray(this.FolderPagedList, event.previousIndex, event.currentIndex);
+      }
+
     ngOnInit(): void
     {
         console.log("On Init")
@@ -153,6 +195,7 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         this.PagedList$.pipe(takeUntil(this._unsubscribeAll)).subscribe(res=>{
                 console.log("subscribed")
                 console.log(res)
+                this.FolderPagedList = res;
         });
 
        // Get the pagination and subscribe
@@ -194,7 +237,7 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         {
             // Set the initial sort
             this._sort.sort({
-                id          : 'name',
+                id          : 'folder_order',
                 start       : 'asc',
                 disableClear: true,
             });

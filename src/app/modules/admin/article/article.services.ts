@@ -239,7 +239,7 @@ export class ArticleService
     }
     reorder(articleId, LawGUID, orderNumber): Observable<any>
     {
-        var url = this.apiURL +"reorder/" + articleId + "?LawGUID="+LawGUID+"&sectionOrder="+orderNumber
+        var url = this.apiURL +"reorder/" + articleId + "?LawGUID="+LawGUID+"&ArticleOrder="+orderNumber
         return this._httpClient.post<iArticle>(url, null, this.getHeaders());
         
     }

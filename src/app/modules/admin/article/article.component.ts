@@ -105,7 +105,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
         console.log(displacedItem)
         //update order in API
         var newOrderNumber = displacedItem.article_order;
-        this._ArticleService.reorder(this.selectedLaw.guid, dropItem.id, newOrderNumber).subscribe(res=>{
+        this._ArticleService.reorder( dropItem.id, this.selectedLaw.guid,newOrderNumber).subscribe(res=>{
             console.log('moved Items')
             this._ArticleService.getListPaging(this.selectedLaw.guid, this.txtSearch,0,this.paginatorArticle.pageSize,"article_order","asc")
              .subscribe(res=>{console.log('update table')})

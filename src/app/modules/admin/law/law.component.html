@@ -52,13 +52,12 @@
                             matSort
                             matSortDisableClear>
                             <div
-                                class="hidden md:block"
+                                class="hidden sm:block"
                                 [mat-sort-header]="'id'">
                                 ID
                             </div>
                             <div [mat-sort-header]="'title'">Title</div>
-                            <div [mat-sort-header]="'subtitle'">Subtitle</div>
-                            <div [mat-sort-header]="'version'" class="hidden sm:block">Version</div>
+                            <div [mat-sort-header]="'subtitle'"class="hidden sm:block"  >Subtitle</div>
                             <div class="hidden sm:block">Details</div>
                             <div class="hidden sm:block">Content</div>
                         </div>
@@ -73,7 +72,7 @@
                             <ng-container *ngFor="let item of items; trackBy: trackByFn">
                                 <div class="law-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
 
-                                    <div class="truncate hidden md:block ">
+                                    <div class="truncate hidden sm:block ">
                                         {{item.id}}
                                     </div>
 
@@ -86,9 +85,6 @@
                                     <div class="text hidden sm:block text-center">
                                         <!-- {{pliServices[product.serviceId-1].name}} -->
                                         {{item.subtitle}}
-                                    </div>
-                                    <div class="text hidden sm:block text-center">
-                                        {{item.version}}
                                     </div>
                                     <!-- Details button -->
                                     <div>
