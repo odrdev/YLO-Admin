@@ -121,7 +121,11 @@ export class TopicService
         var url = this.apiURL + "doctrine/" + doctrineGUID
         return this._httpClient.get<iTopic[]>(url,this.getHeaders()).pipe();
     }
-
+    getBySection(sectionGUID:any){
+        var url = this.apiURL + "section/" + sectionGUID
+        return this._httpClient.get<iTopic[]>(url,this.getHeaders()).pipe();
+    }
+    
     getById(id:any): Observable<iTopic>
     {
         return this._pagedList.pipe(

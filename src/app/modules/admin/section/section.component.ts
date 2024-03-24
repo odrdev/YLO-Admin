@@ -18,7 +18,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
+import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap, startWith } from 'rxjs';
 import { DateTime } from 'luxon';
 import { SectionService } from './section.services';
 import { ActivatedRoute,Router } from '@angular/router';
@@ -28,7 +28,10 @@ import { ArticleService } from '../article/article.services';
 import { LawService } from '../law/law.services';
 import { iLaw } from '../law/law.type';
 import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
-
+import {CdkTextareaAutosize, TextFieldModule} from '@angular/cdk/text-field';
+import { iTopic } from '../topic/topic.type';
+import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
+import { TopicService } from '../topic/topic.services';
 @Component({
     selector       : 'section-component',
     templateUrl    : 'section.component.html',
@@ -38,7 +41,7 @@ import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/mat
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, CdkDropList, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [NgIf, CdkDropList, MatChipsModule,TextFieldModule, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
 export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
@@ -64,10 +67,15 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     selectedArticle:iArticle;
     selectedLaw:iLaw;
     articleCtrl = new FormControl();
+    TopicList:iTopic[];
+    filteredtopics$:Observable<iTopic[]>
     max=10;
     @ViewChild('articleInput') articleInput: ElementRef<HTMLInputElement>;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    topicCtrl = new FormControl('');
+    @ViewChild('topicInput') topicInput: ElementRef<HTMLInputElement>;
+    topicSection: iTopic[];
+    deletedtopicSection: iTopic[] = [];
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
@@ -76,11 +84,22 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         private activatedRoute: ActivatedRoute,
         private _ArticleService: ArticleService,
         private _LawService: LawService,
+        private _TopicService: TopicService,
         private router:Router
     )
     {
-        console.log("Constructor")
+        console.log("Constructor");
+        this.filteredtopics$ = this.topicCtrl.valueChanges.pipe(
+            startWith(null),
+            map((topic: string | null) => (topic ? this._filterTopic(topic) : this.TopicList.slice())),
+          );
     }
+    private _filterTopic(value: string): iTopic[] {
+        const filterValue = value.toLowerCase();
+    
+        return this.TopicList.filter(topic => topic.title.toLowerCase().includes(filterValue));
+      }
+
     filter(): void {
         const filterValue = this.articleInput.nativeElement.value.toLowerCase();
         this.filteredArticles = this.articles.filter(o => o.title.toLowerCase().includes(filterValue));
@@ -141,6 +160,15 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
             });
 
           });
+          this.activatedRoute.data.subscribe(({Topics}) => {
+            console.log("loaded data");
+            this._TopicService.List$.subscribe(res=>{
+                console.log(res)
+                this.TopicList = res;
+
+            });
+
+          });
         this.activatedRoute.queryParams.subscribe((articleGUID: any) => {
             console.log("pass article guid")
             console.log(articleGUID)
@@ -171,6 +199,8 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
            
                 this.max = res ? res.length + 1 : 1;
                 this.SectionPagedList = res;
+
+
 
         });
 
@@ -283,6 +313,8 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     {
         this.newItem = false;
         this.selectedItem = null;
+        this.topicSection = [];
+        this.deletedtopicSection = []
     }
 
     toggleDetails(Id: number): void
@@ -294,6 +326,9 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
             // Close the details
            
             this.closeDetails();
+
+
+
             return;
         }
 
@@ -306,7 +341,11 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
           
             this.selectedItemForm.patchValue(itemForm);
             
-           
+            this._TopicService.getBySection(this.selectedItem.guid).subscribe(res=>{
+                console.log(res);
+                this.topicSection = res;
+                this._changeDetectorRef.markForCheck();
+            })
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
@@ -324,7 +363,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",section_order:this.max, articleGUID:this.selectedArticle.guid};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
-
+        this.deletedtopicSection = [];
         this._changeDetectorRef.markForCheck();
         el.scrollIntoView();
     }
@@ -343,7 +382,11 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
 
             // Fill the form
             this.selectedItemForm.patchValue(newItem);
-
+            this.topicSection.forEach(item=>{
+                this._SectionService.AddToTopic(newItem.guid, item.guid).subscribe(res=>{
+                    console.log("Doctrine added to Topic");
+                });
+            })    
             // Mark for check
             this._changeDetectorRef.markForCheck();
             this.showFlashMessage('success');
@@ -361,8 +404,22 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         this._SectionService.update(item.id, item).subscribe({next: (event:any) =>{
             console.log('next');
             console.log(event);
+            this.deletedtopicSection.forEach(res=>{
+                this._SectionService.RemoveFromTopic(this.selectedItem.guid,res.guid).subscribe(x=>{
+                    console.log("cleared doctrine");
+                    
+            });     
+            });
+            this.topicSection.forEach(res=>{
+                this._SectionService.AddToTopic(this.selectedItem.guid,res.guid).subscribe(res=>{
+                    console.log("added doctrine");
+                });
+            });
+
             this.showFlashMessage('success');
             this.newItem = false;
+
+
               
         },complete(){
             console.log('complete');
@@ -434,5 +491,38 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     {
         return item.id || index;
     }
-
+ addTopic(event: MatChipInputEvent): void {
+        const value = (event.value || '').trim();
+    
+        var topic = this.TopicList.find(t=>t.title===event.value);
+        // Add our fruit
+        if (value) {
+          this.topicSection.push(topic);
+        }
+    
+        // Clear the input value
+        event.chipInput!.clear();
+    
+        this.topicCtrl.setValue(null);
+      }
+    
+      removeTopic(topic): void {
+        const index = this.topicSection.indexOf(topic);
+    
+        if (index >= 0) {
+          this.topicSection.splice(index, 1);
+          this.deletedtopicSection.push(topic)
+        }
+      }
+    
+      selectedTopic(event: MatAutocompleteSelectedEvent): void {
+        var topic = this.TopicList.find(t=>t.guid===event.option.value);
+        if(topic !== undefined){
+            this.topicSection.push(topic);
+            
+        }
+        
+        this.topicInput.nativeElement.value = '';
+        this.topicCtrl.setValue(null);
+      }
 }

@@ -181,17 +181,41 @@
                                                     [formControlName]="'subtitle'">
                                             </mat-form-field>
                                             <mat-form-field class="w-full">
+                                                <mat-label>Topics</mat-label>
+                                                <mat-chip-grid #chipGrid aria-label="Selected Topics">
+                                                    <ng-container *ngFor="let topic of topicSection; trackBy: trackByFn">
+                                               
+                                                    <mat-chip-row (removed)="removeTopic(topic)">
+                                                      {{topic.title}}
+                                                      <button matChipRemove [attr.aria-label]="'remove ' + topic">
+                                                        <mat-icon>cancel</mat-icon>
+                                                      </button>
+                                                    </mat-chip-row>
+                                                    </ng-container>
+                                                </mat-chip-grid>
+                                                <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
+                                                  [matChipInputFor]="chipGrid" [matAutocomplete]="autoTopic"
+                                                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                  (matChipInputTokenEnd)="addTopic($event)"/>
+                                                <mat-autocomplete #autoTopic="matAutocomplete" (optionSelected)="selectedTopic($event)">
+                                                    <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
+                                               
+                                                    <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
+                                                    </ng-container>
+                                                </mat-autocomplete>
+                                              </mat-form-field>
+                                        </div>
+                                        <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
+                                            <mat-form-field class="w-full">
                                                 <mat-label>Description</mat-label>
-                                                <input
+                                                <textarea
+                                                    cdkTextareaAutosize
+                                                     #autosize="cdkTextareaAutosize"
+                                                    cdkAutosizeMinRows="1"
+                                                     cdkAutosizeMaxRows="5"
                                                     matInput
-                                                    [formControlName]="'description'">
+                                                    [formControlName]="'description'"></textarea>
                                             </mat-form-field>
-                                            <!-- <mat-form-field class="w-full">
-                                                <mat-label>Order</mat-label>
-                                                <input
-                                                    matInput type="number" (min)="1" (max)="max"
-                                                    [formControlName]="'section_order'">
-                                            </mat-form-field> -->
                                         </div>
 
                             </div>

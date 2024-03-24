@@ -244,5 +244,12 @@ export class SectionService
         return this._httpClient.post<iSection>(url, null, this.getHeaders());
         
     }
-
+    AddToTopic(SectionGUID, TopicGUID){ 
+        var url = this.apiURL + SectionGUID + "/AddTopic/" + TopicGUID
+        return  this._httpClient.post<iSection>(url, null, this.getHeaders()).pipe();
+    }
+    RemoveFromTopic(SectionGUID, TopicGUID){ 
+        var url = this.apiURL + SectionGUID + "/RemoveTopic/" + TopicGUID
+        return  this._httpClient.delete<iSection>(url, this.getHeaders()).pipe();
+    }
 }
