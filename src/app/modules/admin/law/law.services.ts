@@ -68,7 +68,9 @@ export class LawService
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
-
+    getContent(id){
+        return this._httpClient.get<any>(this.apiURL + "content/" + id,this.getHeaders());
+    }
 
     getList(): Observable<iLaw[]>
     {

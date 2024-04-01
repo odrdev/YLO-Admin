@@ -32,6 +32,8 @@ import {CdkTextareaAutosize, TextFieldModule} from '@angular/cdk/text-field';
 import { iTopic } from '../topic/topic.type';
 import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
 import { TopicService } from '../topic/topic.services';
+import { ContentModal } from '../contentmodal/contentModal.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
     selector       : 'section-component',
     templateUrl    : 'section.component.html',
@@ -85,7 +87,8 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         private _ArticleService: ArticleService,
         private _LawService: LawService,
         private _TopicService: TopicService,
-        private router:Router
+        private router:Router,
+        public dialog: MatDialog,
     )
     {
         console.log("Constructor");
@@ -525,4 +528,17 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         this.topicInput.nativeElement.value = '';
         this.topicCtrl.setValue(null);
       }
+
+      viewContent(){
+        console.log('view content')
+        const dialogRef = this.dialog.open(ContentModal, {
+            data: {id: this.selectedLaw.id},
+              enterAnimationDuration:500, exitAnimationDuration:500
+          });
+      
+          dialogRef.afterClosed().subscribe(result => {
+            console.log('The dialog was closed');
+           
+          });
+    }
 }

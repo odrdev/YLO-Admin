@@ -57,7 +57,7 @@
     </div>
     <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-3 px-6 md:px-8 border-b">
         <div class="text-base font-semibold">{{selectedArticle && selectedArticle.title}}, {{selectedLaw && selectedLaw.title}}</div>
-        <button mat-icon-button color="primary" aria-label="preview">
+        <button mat-icon-button color="primary" aria-label="preview" (click)="viewContent()">
             <mat-icon>visibility</mat-icon>
           </button>
     </div>
@@ -86,6 +86,7 @@
                             <div [mat-sort-header]="'subtitle'"  class="hidden md:block" >Subtitle</div>
                             <div [mat-sort-header]="'section_order'" class="hidden sm:block">Order</div>
                             <div class="hidden sm:block">Details</div>
+
                         </div>
                         <!-- Rows -->
                         <div class="grid" >
@@ -129,6 +130,8 @@
                                                     [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
                                             </button>
                                         </div>
+
+
                                      </div>
                                     <div class="grid">
                                         <ng-container *ngIf="selectedItem?.id === item.id">

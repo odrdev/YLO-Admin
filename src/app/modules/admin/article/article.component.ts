@@ -27,7 +27,16 @@ import { iLaw } from '../law/law.type';
 import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
-
+import {
+    MatDialog,
+    MAT_DIALOG_DATA,
+    MatDialogRef,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+  } from '@angular/material/dialog';
+import { ContentModal } from '../contentmodal/contentModal.component';
 @Component({
     selector       : 'article-component',
     templateUrl    : 'article.component.html',
@@ -71,7 +80,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
         private _ArticleService: ArticleService,
         private _lawService: LawService,
         private activatedRoute: ActivatedRoute,
-        private router:Router
+        private router:Router,
+        public dialog: MatDialog,
     )
     {
         console.log("Constructor");
@@ -428,6 +438,19 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     trackByFn(index: number, item: any): any
     {
         return item.id || index;
+    }
+
+    viewContent(){
+        console.log('view content')
+        const dialogRef = this.dialog.open(ContentModal, {
+            data: {id: this.selectedLaw.id},
+              enterAnimationDuration:500, exitAnimationDuration:500
+          });
+      
+          dialogRef.afterClosed().subscribe(result => {
+            console.log('The dialog was closed');
+           
+          });
     }
 
 }

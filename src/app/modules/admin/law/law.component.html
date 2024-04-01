@@ -60,6 +60,7 @@
                             <div [mat-sort-header]="'subtitle'"class="hidden sm:block"  >Subtitle</div>
                             <div class="hidden sm:block">Details</div>
                             <div class="hidden sm:block">Content</div>
+                            <div class="hidden sm:block">View</div>
                         </div>
                         <!-- Rows -->
                         <div class="grid" >
@@ -106,6 +107,11 @@
                                                 class="icon-size-5"
                                                 [svgIcon]="selectedItem?.id === item.id ? 'heroicons_solid:chevron-right' : 'heroicons_solid:chevron-right'"></mat-icon>
                                         </button>
+                                    </div>
+                                    <div>
+                                        <button mat-icon-button color="primary" aria-label="preview" (click)="viewContent(item)">
+                                            <mat-icon>visibility</mat-icon>
+                                          </button>
                                     </div>
                                 </div>
                                 <div class="grid">

@@ -26,6 +26,8 @@ import { iLaw, iLawList } from './law.type';
 import { iFolder, iFolderList } from '../folder/folder.type';
 import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
+import { ContentModal } from '../contentmodal/contentModal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 
 @Component({
@@ -35,18 +37,18 @@ import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
         /* language=SCSS */
         `  
             .law-grid {
-                grid-template-columns: auto  48px 48px;
+                grid-template-columns: auto  48px 48px 50px;
 
                 @screen sm {
-                    grid-template-columns: 48px auto  150px 50px 50px  50px;
+                    grid-template-columns: 48px auto  150px 50px 50px  50px 50px;
                 }
 
                 @screen md {
-                    grid-template-columns: 48px auto  150px 96px 72px 72px; 
+                    grid-template-columns: 48px auto  150px 96px 72px 72px 72px; 
                 }
 
                 @screen lg {
-                    grid-template-columns: 48px auto  250px 96px 72px 72px ;
+                    grid-template-columns: 48px auto  250px 96px 72px 72px 72px;
                 }
             }
             .file-input {
@@ -137,7 +139,8 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         private _LawService: LawService,
         private _foldeService: FolderService,
         private activatedRoute: ActivatedRoute,
-        private router:Router
+        private router:Router,
+        public dialog: MatDialog,
     )
     {
         console.log("Constructor");
@@ -493,5 +496,18 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
       toggleContent(item:iLaw){
          this.router.navigate(['article'],{ queryParams: { lawGUID: item.guid }});
       }
+
+      viewContent(item:any){
+        console.log('view content')
+        const dialogRef = this.dialog.open(ContentModal, {
+            data: {id: item.id},
+              enterAnimationDuration:500, exitAnimationDuration:500
+          });
+      
+          dialogRef.afterClosed().subscribe(result => {
+            console.log('The dialog was closed');
+           
+          });
+    }
 
 }
