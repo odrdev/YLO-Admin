@@ -1,6 +1,6 @@
 import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
@@ -10,6 +10,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -17,9 +19,11 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
+import { iFolder, iFolderList } from '../folder/folder.type';
+import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap, startWith } from 'rxjs';
 import { DateTime } from 'luxon';
 import { TopicService } from './topic.services';
+import { FolderService } from '../folder/folder.services';
 import { ActivatedRoute,Router } from '@angular/router';
 import { iTopic, iTopicList } from './topic.type';
 
@@ -100,7 +104,7 @@ import { iTopic, iTopicList } from './topic.type';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
+    imports        : [ NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
@@ -120,19 +124,34 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
     toggleOpen: boolean = false;
     txtSearch = "";
     showContent:boolean = false;
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    folders:iFolder[];
+    filteredfolders$:Observable<iFolder[]>;
+    folderTopic: iFolder[];
+    deletedfolderTopic: iFolder[] = [];
+    folderCtrl = new FormControl('');
+    private _unsubscribeAll: Subject<any> = new Subject<any>();    
+    @ViewChild('folderInput') folderInput: ElementRef<HTMLInputElement>;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: UntypedFormBuilder,
+        private _foldeService: FolderService,
         private _TopicService: TopicService,
         private activatedRoute: ActivatedRoute,
         private router:Router
     )
     {
-        console.log("Constructor")
+        console.log("Constructor");
+        this.filteredfolders$ = this.folderCtrl.valueChanges.pipe(
+            startWith(null),
+            map((topic: string | null) => (topic ? this._filter(topic) : this.folders.slice())),
+          );
     }
+    private _filter(value: string): iFolder[] {
+        const filterValue = value.toLowerCase();
+    
+        return this.folders.filter(topic => topic.name.toLowerCase().includes(filterValue));
+      }
     ngOnInit(): void
     {
         console.log("On Init")
@@ -146,11 +165,9 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
 
         //load data resolver
         console.log(this.activatedRoute.data)
-        this.activatedRoute.data.subscribe(({Topics}) => {
+        this.activatedRoute.data.subscribe(({Folders}) => {
             console.log("loaded data");
           });
-
-
         //Get data observer and subscribe to data
         this.PagedList$ = this._TopicService.PagedList$;
 
@@ -159,6 +176,9 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
                 console.log(res)
         });
 
+        this._foldeService.List$.subscribe(res=>{
+            this.folders = res;
+        })
        // Get the pagination and subscribe
         this._TopicService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -239,10 +259,7 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
           return { 'numeric': true };
         }
         return null;
-      }
-
-
-
+    }
     ngOnDestroy(): void
     {
         // Unsubscribe from all subscriptions
@@ -277,10 +294,17 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
           
             this.selectedItemForm.patchValue(itemForm);
             
+            this._foldeService.getByTopic(item.guid).subscribe(res=>{
+                console.log(res);
+                this.folderTopic = res;
+                this._changeDetectorRef.markForCheck();
+            })
            
             // Mark for check
             this._changeDetectorRef.markForCheck();
         });
+
+        
     }
 
     toggleContent(event)
@@ -297,10 +321,12 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
         var newItem = {id:0, title:'',description:""};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
-
+        this.folderTopic = [];
+        this.deletedfolderTopic = [];
         this._changeDetectorRef.markForCheck();
         el.scrollIntoView();
     }
+
     create(): void
     {
         const newItem = this.selectedItemForm.getRawValue();
@@ -316,14 +342,19 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
 
             // Fill the form
             this.selectedItemForm.patchValue(newItem);
-
+            //add Law to Folder
+            this.folderTopic.forEach(item=>{
+                this._foldeService.AddTopic(item.guid, newItem.guid).subscribe(res=>{
+                    console.log("Topic added to Folder");
+                });
+            }) 
             // Mark for check
             this._changeDetectorRef.markForCheck();
             this.showFlashMessage('success');
             this.newItem = false;
         });
     }
-
+   
     update(): void
     {
         // Get the product object
@@ -336,6 +367,19 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
             console.log(event);
             this.showFlashMessage('success');
             this.newItem = false;
+
+            this.deletedfolderTopic.forEach(res=>{
+                this._foldeService.RemoveTopic(res.guid, this.selectedItem.guid).subscribe(x=>{
+                    console.log("cleared folder");
+                    
+            });     
+            });
+            this.folderTopic.forEach(res=>{
+                this._foldeService.AddTopic(res.guid, this.selectedItem.guid).subscribe(res=>{
+                    console.log("added to folder");
+                });
+            });
+            this.deletedfolderTopic = [];
               
         },complete(){
             console.log('complete');
@@ -346,6 +390,7 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
         this._changeDetectorRef.markForCheck();
 
     }
+   
     delete(): void
     {
         // Open the confirmation dialog
@@ -407,5 +452,40 @@ export class TopicComponent implements OnInit, AfterViewInit, OnDestroy
     {
         return item.id || index;
     }
+    addFolder(event: MatChipInputEvent): void {
+        const value = (event.value || '').trim();
+    
+        var folder = this.folders.find(t=>t.name===event.value);
+        // Add our fruit
+        if (value) {
+          this.folderTopic.push(folder);
+        }
+    
+        // Clear the input value
+        event.chipInput!.clear();
+    
+        this.folderCtrl.setValue(null);
+      }
+    
+      removeFolder(folder): void {
+        console.log(folder)
+        const index = this.folderTopic.indexOf(folder);
+    
+        if (index >= 0) {
+          this.folderTopic.splice(index, 1);
+        }
+      }
+    
+      selectedFolder(event: MatAutocompleteSelectedEvent): void {
+        var folder = this.folders.find(t=>t.guid===event.option.value);
+        
+        if(folder !== undefined){
+            this.folderTopic.push(folder);
+            
+        }
+        console.log( this.folderTopic)
+        this.folderInput.nativeElement.value = '';
+        this.folderCtrl.setValue(null);
+      }
 
 }
