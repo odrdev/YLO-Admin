@@ -144,13 +144,12 @@ export class UserComponent implements OnInit, AfterViewInit, OnDestroy
           );
     }
     private _filter(value: string): iUser[] {
-        const filterValue = value.toLowerCase();
-    
+        const filterValue = value.toLowerCase();    
         return this.users.filter(user => user.username.toLowerCase().includes(filterValue));
-      }
+    }
     ngOnInit(): void
     {
-        console.log("On Init")
+        console.log("User On Init")
         // Create the selected product form
         this.selectedItemForm = this._formBuilder.group({
             id             : [0, [Validators.required]],
@@ -205,7 +204,6 @@ export class UserComponent implements OnInit, AfterViewInit, OnDestroy
                 this.isLoading = false
             })).subscribe();
     }
-
     ngAfterViewInit(): void
     {
         console.log("After View Init");
