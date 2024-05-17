@@ -209,8 +209,13 @@
                                               </mat-form-field>
                                         </div>
                                         <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
-                                            <mat-form-field class="w-full">
+                                            <div class="description-editor">
                                                 <mat-label>Description</mat-label>
+                                                  <quill-editor [modules]="modules"  formControlName="description"></quill-editor>
+                                            </div>
+                                            <!-- <mat-form-field class="w-full">
+                                                <mat-label>Description</mat-label>
+                                                <quill-editor [modules]="modules"  formControlName="description"></quill-editor>
                                                 <textarea
                                                     cdkTextareaAutosize
                                                      #autosize="cdkTextareaAutosize"
@@ -218,7 +223,7 @@
                                                      cdkAutosizeMaxRows="5"
                                                     matInput
                                                     [formControlName]="'description'"></textarea>
-                                            </mat-form-field>
+                                            </mat-form-field> -->
                                         </div>
 
                             </div>

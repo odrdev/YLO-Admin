@@ -34,6 +34,7 @@ import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
 import { TopicService } from '../topic/topic.services';
 import { ContentModal } from '../contentmodal/contentModal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { QuillModule } from 'ngx-quill'
 @Component({
     selector       : 'section-component',
     templateUrl    : 'section.component.html',
@@ -43,7 +44,7 @@ import { MatDialog } from '@angular/material/dialog';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, CdkDropList, MatChipsModule,TextFieldModule, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [NgIf, CdkDropList, QuillModule, MatChipsModule,TextFieldModule, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
 export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
@@ -78,6 +79,17 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     @ViewChild('topicInput') topicInput: ElementRef<HTMLInputElement>;
     topicSection: iTopic[];
     deletedtopicSection: iTopic[] = [];
+
+    modules = {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+          ['blockquote', 'code-block'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'size': ['small', false, 'large'] }],  // custom dropdown
+          [{ 'color': [] }],          // dropdown with defaults from theme
+          [{ 'align': [false,'center','right'] }],
+        ]
+      };
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,

@@ -147,6 +147,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             this.selectedLaw = sLaw;
             this._ArticleService.getListPaging(sLaw.guid,"",0,10,"article_order","asc").subscribe(res=>{
                 console.log(res)
+                this.PagedList$ = this._ArticleService.PagedList$;
             });
           });
 
@@ -257,6 +258,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             merge(this._sort.sortChange, this.paginatorArticle.page).pipe(
                 switchMap(() =>
                 {
+                    console.log("change page")
                     this.closeDetails();
                     this.isLoading = true;
                     return this._ArticleService.getListPaging(this.selectedLaw.guid, this.txtSearch,this.paginatorArticle.pageIndex,this.paginatorArticle.pageSize,this._sort.active, this._sort.direction);

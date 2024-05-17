@@ -1,3 +1,14 @@
+@import '~quill/dist/quill.bubble.css';
+.ql-container {
+    overflow: auto;
+    min-height: 100px !important;
+    max-height: 400px !important;
+}
+.ql-editor p{
+    white-space: normal !important;
+
+}
+
 .section-grid {
     grid-template-columns: 48px  auto  50px;
     padding: 20px 10px;
@@ -72,7 +83,11 @@ p{
     opacity: 70%;
     font-size: 12px;
 }
-
+.description-editor{
+    padding-bottom:20px;
+    display: flex;
+    flex-direction: column;
+}
 .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 4px;
