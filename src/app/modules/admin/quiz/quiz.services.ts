@@ -9,16 +9,16 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, filter, map, Observable, of, switchMap, take, tap, throwError } from 'rxjs';
 import { iPagination } from '../global.type';
 import { AuthService } from 'app/core/auth/auth.service';
-import { iTopic, iTopicList, iTopicResult } from './topic.type';
+import { iQuiz, iQuizList, iQuizResult } from './quiz.type';
 @Injectable({providedIn: 'root'})
-export class TopicService
+export class QuizService
 {
     // Private
 
-    private _item: BehaviorSubject<iTopic | null> = new BehaviorSubject(null);
-    private _List: BehaviorSubject<iTopic[] | null> = new BehaviorSubject(null);
-    private _pagedList: BehaviorSubject<iTopicList[] | null> = new BehaviorSubject(null);
-    private apiURL = environment.apiendpoint + "Topic/";
+    private _item: BehaviorSubject<iQuiz | null> = new BehaviorSubject(null);
+    private _List: BehaviorSubject<iQuiz[] | null> = new BehaviorSubject(null);
+    private _pagedList: BehaviorSubject<iQuizList[] | null> = new BehaviorSubject(null);
+    private apiURL = environment.apiendpoint + "quiz/";
     private _pagination: BehaviorSubject<iPagination | null> = new BehaviorSubject(null);
 
     /**
@@ -46,18 +46,19 @@ export class TopicService
     /**
      * Getter for services
      */
-    get PagedList$(): Observable<iTopicList[]>
+    get PagedList$(): Observable<iQuizList[]>
     {
         return this._pagedList.asObservable();
     }
-    get List$(): Observable<iTopic[]>
+    get List$(): Observable<iQuiz[]>
     {
         return this._List.asObservable();
     }
-    get item$(): Observable<iTopic>
+    get item$(): Observable<iQuiz>
     {
         return this._item.asObservable();
     }
+
     get pagination$(): Observable<iPagination>
     {
         return this._pagination.asObservable();
@@ -69,10 +70,10 @@ export class TopicService
     // -----------------------------------------------------------------------------------------------------
 
 
-    getList(): Observable<iTopic[]>
+    getList(): Observable<iQuiz[]>
     {
 
-        return this._httpClient.get<iTopic[]>(this.apiURL,this.getHeaders()).pipe(
+        return this._httpClient.get<iQuiz[]>(this.apiURL,this.getHeaders()).pipe(
             tap((res) =>
             {
                 res = res.filter((type:any)=>{
@@ -92,7 +93,7 @@ export class TopicService
      * @param sortAscending
      * @param txtsearch
      */
-    getListPaging(txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iTopicResult>
+    getListPaging(txtsearch = "", page = 0, size = 10,sortField="title", sortAscending='asc'): Observable<iQuizResult>
     {
         
         var param = {
@@ -103,7 +104,7 @@ export class TopicService
             "sortAscending": sortAscending !== 'desc' ? true : false          };
         var url = this.apiURL + "Paging"
         console.log(param)
-        return this._httpClient.post<iTopicResult>(url,param,this.getHeaders()).pipe(
+        return this._httpClient.post<iQuizResult>(url,param,this.getHeaders()).pipe(
             tap((res) =>
             {
                 console.log(res.Pagination)
@@ -117,23 +118,9 @@ export class TopicService
         );
     }
 
-    getByDoctrine(doctrineGUID:any){
-        var url = this.apiURL + "doctrine/" + doctrineGUID
-        return this._httpClient.get<iTopic[]>(url,this.getHeaders()).pipe();
-    }
-    getBySection(sectionGUID:any){
-        var url = this.apiURL + "section/" + sectionGUID
-        return this._httpClient.get<iTopic[]>(url,this.getHeaders()).pipe();
-    }
-    getByQuestion(questionId:any){
-        var url = this.apiURL + "Question/" + questionId
-        return this._httpClient.get<iTopic[]>(url,this.getHeaders()).pipe();
-    }
-    getByQuiz(quizId:any){
-        var url = this.apiURL + "Quiz/" + quizId
-        return this._httpClient.get<iTopic[]>(url,this.getHeaders()).pipe();
-    }
-    getById(id:any): Observable<iTopic>
+    
+
+    getById(id:any): Observable<iQuiz>
     {
         return this._pagedList.pipe(
             take(1),
@@ -164,11 +151,11 @@ export class TopicService
      * Create product
      */
     
-    create(item:iTopic): Observable<iTopic>
+    create(item:iQuiz): Observable<iQuiz>
     {
         return this.PagedList$.pipe(
             take(1),
-            switchMap(products => this._httpClient.post<iTopic>(this.apiURL, item, this.getHeaders()).pipe(
+            switchMap(products => this._httpClient.post<iQuiz>(this.apiURL, item, this.getHeaders()).pipe(
                 map((newItem) =>
                 {
                     // Update the products with the new product
@@ -187,12 +174,12 @@ export class TopicService
      * @param id
      * @param item
      */
-    update(id: any, item: iTopic): Observable<iTopic>
+    update(id: any, item: iQuiz): Observable<iQuiz>
     {
         console.log(item)
         return this.PagedList$.pipe(
             take(1),
-            switchMap(items => this._httpClient.put<iTopic>(this.apiURL +  id, item, this.getHeaders()).pipe(
+            switchMap(items => this._httpClient.put<iQuiz>(this.apiURL +  id, item, this.getHeaders()).pipe(
                 map((updatedItem) =>
                 {
                     // Find the index of the updated service
@@ -251,4 +238,12 @@ export class TopicService
         );
     }
 
+    AddToTopic(quizId, TopicGUID){ 
+        var url = this.apiURL + quizId + "/AddQuizToTopic/" + TopicGUID
+        return  this._httpClient.post<iQuiz>(url, null, this.getHeaders()).pipe();
+    }
+    RemoveFromTopic(quizId, TopicGUID){ 
+        var url = this.apiURL + quizId + "/RemoveFromTopic/" + TopicGUID
+        return  this._httpClient.delete<iQuiz>(url, this.getHeaders()).pipe();
+    }
 }

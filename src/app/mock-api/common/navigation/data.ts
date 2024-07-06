@@ -51,6 +51,20 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/doctrine'
     },
     {
+        id   : 'm6',
+        title: 'Questions',
+        type : 'basic',
+        icon : 'heroicons_outline:square-3-stack-3d',
+        link : '/question'
+    },
+    {
+        id   : 'm7',
+        title: 'Quizzes',
+        type : 'basic',
+        icon : 'heroicons_outline:square-3-stack-3d',
+        link : '/quiz'
+    },
+    {
         id   : 'm4',
         title: 'Users',
         type : 'basic',
@@ -64,13 +78,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon : 'heroicons_outline:cog',
         link : '/settings'
     },
-    {
-        id   : 'm6',
-        title: 'Quizzes',
-        type : 'basic',
-        icon : 'heroicons_outline:square-3-stack-3d',
-        link : '/quiz'
-    },
+    
 
 ];
 export const compactNavigation: FuseNavigationItem[] = [

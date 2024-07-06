@@ -79,6 +79,8 @@ export const appRoutes: Route[] = [
             {path: 'section', loadChildren: () => import('app/modules/admin/section/section.routes')},
             {path: 'topic', loadChildren: () => import('app/modules/admin/topic/topic.routes')},
             {path: 'doctrine', loadChildren: () => import('app/modules/admin/doctrine/doctrine.routes')},
+            {path: 'question', loadChildren: () => import('app/modules/admin/question/question.routes')},
+             {path: 'quiz', loadChildren: () => import('app/modules/admin/quiz/quiz.routes')},
             {path: 'user', loadChildren: () => import('app/modules/admin/user/user.routes')},
         ]
     }
