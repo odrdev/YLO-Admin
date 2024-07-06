@@ -86,12 +86,6 @@ import { iUser, iUserList } from './user.type';
                 color: red;
             }
 
-            p{
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
             .description{
                 opacity: 70%;
                 font-size: 12px;

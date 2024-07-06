@@ -26,88 +26,240 @@ import { ActivatedRoute,Router } from '@angular/router';
 import { iDoctrine, iDoctrineList } from './doctrine.type';
 import { TopicService } from '../topic/topic.services';
 import { iTopic } from '../topic/topic.type';
-
+import { QuillModule } from 'ngx-quill';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import {
+	ClassicEditor,
+	AccessibilityHelp,
+	Alignment,
+	Autoformat,
+	AutoLink,
+	Autosave,
+	BlockQuote,
+	Bold,
+	CodeBlock,
+	Essentials,
+	FindAndReplace,
+	GeneralHtmlSupport,
+	Heading,
+	HorizontalLine,
+	Indent,
+	IndentBlock,
+	Italic,
+	Link,
+	Paragraph,
+	SelectAll,
+	Style,
+	Table,
+	TableCaption,
+	TableCellProperties,
+	TableColumnResize,
+	TableProperties,
+	TableToolbar,
+	TextTransformation,
+	Undo,
+	type EditorConfig
+} from 'ckeditor5';
+//import 'ckeditor5/ckeditor5.css';
 @Component({
     selector       : 'doctrine-component',
     templateUrl    : 'doctrine.component.html',
-    styles         : [
-        /* language=SCSS */
-        `  
-            .subs-grid {
-                grid-template-columns: 48px auto  100px 50px 48px;
-
-                @screen sm {
-                    grid-template-columns: 48px auto  150px 50px 48px;
-                }
-
-                @screen md {
-                    grid-template-columns: 48px auto  300px 96px 48px; 
-                }
-
-                @screen lg {
-                    grid-template-columns: 48px auto  350px 96px 48px;
-                }
-            }
-            .file-input {
-
-                display: none;
-              
-              }
-
-              .edit-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                justify-content: center; /* Center horizontally */
-                align-items: center; /* Center vertically */
-                background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-                backdrop-filter: blur(5px); /* Blur the background */
-                z-index: 100
-            }
-
-            .edit-dialog {
-                background-color: white;
-                padding: 20px;
-                width: 40%;
-                min-width: 221.594px;
-                border-radius: 10px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
-            }
-
-            .circle{
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-            }
-            .red{
-                color: red;
-            }
-
-            p{
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .description{
-                opacity: 70%;
-                font-size: 12px;
-            }
- 
-        `,
-    ],
+    styleUrls      : ['doctrine.component.scss'],
+  
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
+    imports        : [NgIf,QuillModule,CKEditorModule, MatProgressBarModule, MatFormFieldModule, MatAutocompleteModule, MatChipsModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
 {
+
+    public Editor = ClassicEditor;
+    public config = {
+        toolbar: {
+            items: [
+                'undo',
+                'redo',
+                '|',
+                'findAndReplace',
+                'selectAll',
+                '|',
+                'heading',
+                'style',
+                '|',
+                'bold',
+                'italic',
+                '|',
+                'horizontalLine',
+                'link',
+                'insertTable',
+                'blockQuote',
+                'codeBlock',
+                '|',
+                'alignment',
+                '|',
+                'indent',
+                'outdent',
+                '|',
+                'accessibilityHelp'
+            ],
+            shouldNotGroupWhenFull: false
+        },
+        plugins: [
+            AccessibilityHelp,
+            Alignment,
+            Autoformat,
+            AutoLink,
+            Autosave,
+            BlockQuote,
+            Bold,
+            CodeBlock,
+            Essentials,
+            FindAndReplace,
+            GeneralHtmlSupport,
+            Heading,
+            HorizontalLine,
+            Indent,
+            IndentBlock,
+            Italic,
+            Link,
+            Paragraph,
+            SelectAll,
+            Style,
+            Table,
+            TableCaption,
+            TableCellProperties,
+            TableColumnResize,
+            TableProperties,
+            TableToolbar,
+            TextTransformation,
+            Undo
+        ],
+        heading: {
+            options: [
+                {
+                    model: 'paragraph',
+                    title: 'Paragraph',
+                    class: 'ck-heading_paragraph'
+                },
+                {
+                    model: 'heading1',
+                    view: 'h1',
+                    title: 'Heading 1',
+                    class: 'ck-heading_heading1'
+                },
+                {
+                    model: 'heading2',
+                    view: 'h2',
+                    title: 'Heading 2',
+                    class: 'ck-heading_heading2'
+                },
+                {
+                    model: 'heading3',
+                    view: 'h3',
+                    title: 'Heading 3',
+                    class: 'ck-heading_heading3'
+                },
+                {
+                    model: 'heading4',
+                    view: 'h4',
+                    title: 'Heading 4',
+                    class: 'ck-heading_heading4'
+                },
+                {
+                    model: 'heading5',
+                    view: 'h5',
+                    title: 'Heading 5',
+                    class: 'ck-heading_heading5'
+                },
+                {
+                    model: 'heading6',
+                    view: 'h6',
+                    title: 'Heading 6',
+                    class: 'ck-heading_heading6'
+                }
+            ]
+        },
+        htmlSupport: {
+            allow: [
+                {
+                    name: /^.*$/,
+                    styles: true,
+                    attributes: true,
+                    classes: true
+                }
+            ]
+        },
+        link: {
+            addTargetToExternalLinks: true,
+            defaultProtocol: 'https://',
+            decorators: {
+                toggleDownloadable: {
+                    mode: 'manual',
+                    label: 'Downloadable',
+                    attributes: {
+                        download: 'file'
+                    }
+                }
+            }
+        },
+        placeholder: '',
+        style: {
+            definitions: [
+                {
+                    name: 'Article category',
+                    element: 'h3',
+                    classes: ['category']
+                },
+                {
+                    name: 'Title',
+                    element: 'h2',
+                    classes: ['document-title']
+                },
+                {
+                    name: 'Subtitle',
+                    element: 'h3',
+                    classes: ['document-subtitle']
+                },
+                {
+                    name: 'Info box',
+                    element: 'p',
+                    classes: ['info-box']
+                },
+                {
+                    name: 'Side quote',
+                    element: 'blockquote',
+                    classes: ['side-quote']
+                },
+                {
+                    name: 'Marker',
+                    element: 'span',
+                    classes: ['marker']
+                },
+                {
+                    name: 'Spoiler',
+                    element: 'span',
+                    classes: ['spoiler']
+                },
+                {
+                    name: 'Code (dark)',
+                    element: 'pre',
+                    classes: ['fancy-code', 'fancy-code-dark']
+                },
+                {
+                    name: 'Code (bright)',
+                    element: 'pre',
+                    classes: ['fancy-code', 'fancy-code-bright']
+                }
+            ]
+        },
+        table: {
+            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+        }
+    };
+
     @ViewChild('paginatorDoctrine',{static: false}) private paginatorDoctrine: MatPaginator;
     @ViewChild(MatSort,{static:false}) private _sort: MatSort;
    
@@ -129,7 +281,22 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
     deletedtopicDoctrine: iTopic[] = [];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     topicCtrl = new FormControl('');
+    
+    doctrineDetails:string;
+
+    modules = {
+        toolbar: [
+          ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+          ['blockquote', 'code-block'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' },{ 'list': 'check' }],
+          [{ 'size': ['small', false, 'large'] }],  // custom dropdown
+          [{ 'color': [] }],          // dropdown with defaults from theme
+          [{ 'align': [false,'center','right'] }],
+        ]
+      };
+
     @ViewChild('topicInput') topicInput: ElementRef<HTMLInputElement>;
+    isLayoutReady: boolean;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
@@ -172,7 +339,8 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
             console.log("loaded Topics data");
           });  
 
-
+          this.isLayoutReady = true;
+   
         //Get data observer and subscribe to data
         this.PagedList$ = this._DoctrineService.PagedList$;
 
@@ -297,12 +465,13 @@ export class DoctrineComponent implements OnInit, AfterViewInit, OnDestroy
         }
         
         this._DoctrineService.getById(Id)
-        .subscribe((item) =>
+        .subscribe((item:any) =>
         {
             console.log(item)
             this.selectedItem = item;
             var itemForm:any = item;
-          
+            this.doctrineDetails = item.details;
+            console.log(this.doctrineDetails)
             this.selectedItemForm.patchValue(itemForm);
             
             this._TopicService.getByDoctrine(item.guid).subscribe(res=>{

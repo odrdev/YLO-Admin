@@ -195,23 +195,25 @@
                                                       </button>
                                                     </mat-chip-row>
                                                     </ng-container>
+                                                    <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
+                                                    [matChipInputFor]="chipGrid" [matAutocomplete]="autoTopic"
+                                                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                    (matChipInputTokenEnd)="addTopic($event)"/>
+                                                  <mat-autocomplete #autoTopic="matAutocomplete" (optionSelected)="selectedTopic($event)">
+                                                      <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
+                                                 
+                                                      <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
+                                                      </ng-container>
+                                                  </mat-autocomplete>
                                                 </mat-chip-grid>
-                                                <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
-                                                  [matChipInputFor]="chipGrid" [matAutocomplete]="autoTopic"
-                                                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                                  (matChipInputTokenEnd)="addTopic($event)"/>
-                                                <mat-autocomplete #autoTopic="matAutocomplete" (optionSelected)="selectedTopic($event)">
-                                                    <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
                                                
-                                                    <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
-                                                    </ng-container>
-                                                </mat-autocomplete>
                                               </mat-form-field>
                                         </div>
                                         <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
                                             <div class="description-editor">
                                                 <mat-label>Description</mat-label>
-                                                  <quill-editor [modules]="modules"  formControlName="description"></quill-editor>
+                                                  <!-- <quill-editor [modules]="modules"  formControlName="description"></quill-editor> -->
+                                                 <ckeditor [editor]="Editor" formControlName="description" [config]="config" *ngIf="isLayoutReady" />
                                             </div>
                                             <!-- <mat-form-field class="w-full">
                                                 <mat-label>Description</mat-label>

@@ -87,12 +87,6 @@ import { iTopic, iTopicList } from './topic.type';
                 color: red;
             }
 
-            p{
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
             .description{
                 opacity: 70%;
                 font-size: 12px;

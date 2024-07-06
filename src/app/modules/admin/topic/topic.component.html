@@ -158,8 +158,7 @@
                                                       </button>
                                                     </mat-chip-row>
                                                     </ng-container>
-                                                </mat-chip-grid>
-                                                <input placeholder="Select Folder..." #folderInput [formControl]="folderCtrl"
+                                                    <input placeholder="Select Folder..." #folderInput [formControl]="folderCtrl"
                                                   [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
                                                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
                                                   (matChipInputTokenEnd)="addFolder($event)"/>
@@ -169,6 +168,8 @@
                                                     <mat-option [value]="folder.guid">{{folder.name}}</mat-option>
                                                     </ng-container>
                                                 </mat-autocomplete>
+                                                </mat-chip-grid>
+                                                
                                               </mat-form-field>
                                         </div>
 

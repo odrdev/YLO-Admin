@@ -35,6 +35,40 @@ import { TopicService } from '../topic/topic.services';
 import { ContentModal } from '../contentmodal/contentModal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { QuillModule } from 'ngx-quill'
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import {
+	ClassicEditor,
+	AccessibilityHelp,
+	Alignment,
+	Autoformat,
+	AutoLink,
+	Autosave,
+	BlockQuote,
+	Bold,
+	CodeBlock,
+	Essentials,
+	FindAndReplace,
+	GeneralHtmlSupport,
+	Heading,
+	HorizontalLine,
+	Indent,
+	IndentBlock,
+	Italic,
+	Link,
+	Paragraph,
+	SelectAll,
+	Style,
+	Table,
+	TableCaption,
+	TableCellProperties,
+	TableColumnResize,
+	TableProperties,
+	TableToolbar,
+	TextTransformation,
+	Undo,
+	type EditorConfig
+} from 'ckeditor5';
+
 @Component({
     selector       : 'section-component',
     templateUrl    : 'section.component.html',
@@ -44,7 +78,7 @@ import { QuillModule } from 'ngx-quill'
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, CdkDropList, QuillModule, MatChipsModule,TextFieldModule, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [NgIf, CdkDropList,CKEditorModule, QuillModule, MatChipsModule,TextFieldModule, CdkDrag,MatAutocompleteModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
 export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
@@ -52,7 +86,190 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
     @Output() HideContentEvent = new EventEmitter<boolean>();
     @ViewChild('paginatorSection',{static: false}) private paginatorSection: MatPaginator;
     @ViewChild(MatSort,{static:false}) private _sort: MatSort;
-   
+    public Editor = ClassicEditor;
+    public config = {
+        toolbar: {
+            items: [
+                'undo',
+                'redo',
+                '|',
+                'findAndReplace',
+                'selectAll',
+                '|',
+                'heading',
+                'style',
+                '|',
+                'bold',
+                'italic',
+                '|',
+                'horizontalLine',
+                'link',
+                'insertTable',
+                'blockQuote',
+                'codeBlock',
+                '|',
+                'alignment',
+                '|',
+                'indent',
+                'outdent',
+                '|',
+                'accessibilityHelp'
+            ],
+            shouldNotGroupWhenFull: false
+        },
+        plugins: [
+            AccessibilityHelp,
+            Alignment,
+            Autoformat,
+            AutoLink,
+            Autosave,
+            BlockQuote,
+            Bold,
+            CodeBlock,
+            Essentials,
+            FindAndReplace,
+            GeneralHtmlSupport,
+            Heading,
+            HorizontalLine,
+            Indent,
+            IndentBlock,
+            Italic,
+            Link,
+            Paragraph,
+            SelectAll,
+            Style,
+            Table,
+            TableCaption,
+            TableCellProperties,
+            TableColumnResize,
+            TableProperties,
+            TableToolbar,
+            TextTransformation,
+            Undo
+        ],
+        heading: {
+            options: [
+                {
+                    model: 'paragraph',
+                    title: 'Paragraph',
+                    class: 'ck-heading_paragraph'
+                },
+                {
+                    model: 'heading1',
+                    view: 'h1',
+                    title: 'Heading 1',
+                    class: 'ck-heading_heading1'
+                },
+                {
+                    model: 'heading2',
+                    view: 'h2',
+                    title: 'Heading 2',
+                    class: 'ck-heading_heading2'
+                },
+                {
+                    model: 'heading3',
+                    view: 'h3',
+                    title: 'Heading 3',
+                    class: 'ck-heading_heading3'
+                },
+                {
+                    model: 'heading4',
+                    view: 'h4',
+                    title: 'Heading 4',
+                    class: 'ck-heading_heading4'
+                },
+                {
+                    model: 'heading5',
+                    view: 'h5',
+                    title: 'Heading 5',
+                    class: 'ck-heading_heading5'
+                },
+                {
+                    model: 'heading6',
+                    view: 'h6',
+                    title: 'Heading 6',
+                    class: 'ck-heading_heading6'
+                }
+            ]
+        },
+        htmlSupport: {
+            allow: [
+                {
+                    name: /^.*$/,
+                    styles: true,
+                    attributes: true,
+                    classes: true
+                }
+            ]
+        },
+        link: {
+            addTargetToExternalLinks: true,
+            defaultProtocol: 'https://',
+            decorators: {
+                toggleDownloadable: {
+                    mode: 'manual',
+                    label: 'Downloadable',
+                    attributes: {
+                        download: 'file'
+                    }
+                }
+            }
+        },
+        placeholder: '',
+        style: {
+            definitions: [
+                {
+                    name: 'Article category',
+                    element: 'h3',
+                    classes: ['category']
+                },
+                {
+                    name: 'Title',
+                    element: 'h2',
+                    classes: ['document-title']
+                },
+                {
+                    name: 'Subtitle',
+                    element: 'h3',
+                    classes: ['document-subtitle']
+                },
+                {
+                    name: 'Info box',
+                    element: 'p',
+                    classes: ['info-box']
+                },
+                {
+                    name: 'Side quote',
+                    element: 'blockquote',
+                    classes: ['side-quote']
+                },
+                {
+                    name: 'Marker',
+                    element: 'span',
+                    classes: ['marker']
+                },
+                {
+                    name: 'Spoiler',
+                    element: 'span',
+                    classes: ['spoiler']
+                },
+                {
+                    name: 'Code (dark)',
+                    element: 'pre',
+                    classes: ['fancy-code', 'fancy-code-dark']
+                },
+                {
+                    name: 'Code (bright)',
+                    element: 'pre',
+                    classes: ['fancy-code', 'fancy-code-bright']
+                }
+            ]
+        },
+        table: {
+            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+        }
+    };
+
     isEditing: boolean = false;
     SectionPagedList$: Observable<iSectionList[]>;
     SectionPagedList: iSectionList[];
@@ -84,12 +301,13 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         toolbar: [
           ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
           ['blockquote', 'code-block'],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' },{ 'list': 'check' }],
           [{ 'size': ['small', false, 'large'] }],  // custom dropdown
           [{ 'color': [] }],          // dropdown with defaults from theme
           [{ 'align': [false,'center','right'] }],
         ]
       };
+    isLayoutReady: boolean;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
@@ -166,6 +384,8 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
             tags           : [''],
 
         });
+        this.isLayoutReady = true;
+        
         this.activatedRoute.data.subscribe(({Laws}) => {
             console.log("loaded data");
             this._ArticleService.List$.subscribe(res=>{

@@ -89,11 +89,7 @@ import { MatDialog } from '@angular/material/dialog';
                 color: red;
             }
 
-            p{
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
+          
 
             .description{
                 opacity: 70%;
@@ -373,14 +369,17 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
             this.showFlashMessage('success');
             this.newItem = false;
 
+            console.log(this.deletedfolderLaw)
     
             this.deletedfolderLaw.forEach(res=>{
+                console.log('removing folders')
                 this._foldeService.RemoveLaw(res.guid, this.selectedItem.guid).subscribe(x=>{
                     console.log("cleared folder");
                     
             });     
             });
             this.folderLaw.forEach(res=>{
+                console.log('adding folders')
                 this._foldeService.AddLaw(res.guid, this.selectedItem.guid).subscribe(res=>{
                     console.log("added to folder");
                 });
@@ -479,6 +478,8 @@ export class LawComponent implements OnInit, AfterViewInit, OnDestroy
         if (index >= 0) {
           this.folderLaw.splice(index, 1);
         }
+
+        this.deletedfolderLaw.push(folder);
       }
     
       selectedFolder(event: MatAutocompleteSelectedEvent): void {

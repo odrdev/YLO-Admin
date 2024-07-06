@@ -183,17 +183,18 @@
                                                       </button>
                                                     </mat-chip-row>
                                                     </ng-container>
+                                                    <input placeholder="Select Folder..." #folderInput [formControl]="folderCtrl"
+                                                    [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                                                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                    (matChipInputTokenEnd)="addFolder($event)"/>
+                                                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedFolder($event)" >
+                                                      <ng-container *ngFor="let folder of filteredfolders$ | async ; trackBy: trackByFn">
+                                                 
+                                                      <mat-option [value]="folder.guid">{{folder.name}}</mat-option>
+                                                      </ng-container>
+                                                  </mat-autocomplete>
                                                 </mat-chip-grid>
-                                                <input placeholder="Select Folder..." #folderInput [formControl]="folderCtrl"
-                                                  [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
-                                                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                                  (matChipInputTokenEnd)="addFolder($event)"/>
-                                                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedFolder($event)" >
-                                                    <ng-container *ngFor="let folder of filteredfolders$ | async ; trackBy: trackByFn">
                                                
-                                                    <mat-option [value]="folder.guid">{{folder.name}}</mat-option>
-                                                    </ng-container>
-                                                </mat-autocomplete>
                                               </mat-form-field>
                                         </div>
                             </div>

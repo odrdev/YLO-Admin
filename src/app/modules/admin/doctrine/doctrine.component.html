@@ -133,23 +133,37 @@
                             <div class="flex flex-col sm:flex-row p-8">
                             <div class="flex flex-auto flex-wrap">
                                         <!-- Name etc. -->
-                                        <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
+                                        <div class="flex flex-col w-full lg:w-1/2 sm:pl-8">
 
-                                            <!-- Name -->
-                                            <mat-form-field class="w-full">
+                                            <!-- Name --> 
+                                            <div class="description-editor">
+                                                <mat-label>Description</mat-label>
+                                                <div class="main-container">
+                                                    <div class="editor-container editor-container_classic-editor editor-container_include-style" #editorContainerElement>
+                                                        <div class="editor-container__editor">
+                                                            <div #editorElement>
+                                                                <ckeditor [editor]="Editor" formControlName="details" [config]="config" *ngIf="isLayoutReady" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                              
+                                                  <!-- <quill-editor [modules]="modules"  formControlName="details"></quill-editor> -->
+                                            </div>
+                                           
+                                            <!-- <mat-form-field class="w-full">
                                                 <mat-label>Details</mat-label>
-                                                <input
+                                               
+                                              <input
                                                     matInput
                                                     [formControlName]="'details'">
-                                            </mat-form-field>
+                                            </mat-form-field> -->
                                             <mat-form-field class="w-full">
                                                 <mat-label>Citation</mat-label>
                                                 <input
                                                     matInput
                                                     [formControlName]="'citation'">
                                             </mat-form-field>
-                                        </div>
-                                        <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
                                             <mat-form-field class="w-full">
                                                 <mat-label>Topics</mat-label>
                                                 <mat-chip-grid #chipGrid aria-label="Selected Topics">
@@ -162,19 +176,21 @@
                                                       </button>
                                                     </mat-chip-row>
                                                     </ng-container>
+                                                    <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
+                                                    [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                                                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                    (matChipInputTokenEnd)="addTopic($event)"/>
+                                                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedTopic($event)">
+                                                      <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
+                                                 
+                                                      <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
+                                                      </ng-container>
+                                                  </mat-autocomplete>
                                                 </mat-chip-grid>
-                                                <input placeholder="Select Topic..." #topicInput [formControl]="topicCtrl"
-                                                  [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
-                                                  [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                                                  (matChipInputTokenEnd)="addTopic($event)"/>
-                                                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedTopic($event)">
-                                                    <ng-container *ngFor="let topic of filteredtopics$ | async ; trackBy: trackByFn">
                                                
-                                                    <mat-option [value]="topic.guid">{{topic.title}}</mat-option>
-                                                    </ng-container>
-                                                </mat-autocomplete>
                                               </mat-form-field>
                                         </div>
+                                        
                                         
 
                             </div>
