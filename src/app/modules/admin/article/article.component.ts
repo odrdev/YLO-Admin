@@ -108,14 +108,16 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     drop(event: CdkDragDrop<iArticle[]>) {
         var dropItem = this.articlePagedList[event.previousIndex];
         var displacedItem = this.articlePagedList[event.currentIndex]
-        
+        var overAllNewIndex = (this.pagination.size * this.pagination.page) + event.currentIndex
         console.log("Drag drop")
 
         console.log(event)
         console.log(displacedItem)
+        console.log(overAllNewIndex)
         //update order in API
-        var newOrderNumber = displacedItem.article_order;
-        this._ArticleService.reorder( dropItem.id, this.selectedLaw.guid,newOrderNumber).subscribe(res=>{
+        //var newOrderNumber = displacedItem.article_order;
+       
+        this._ArticleService.reorder( dropItem.id, this.selectedLaw.guid,overAllNewIndex).subscribe(res=>{
             console.log('moved Items')
             this._ArticleService.getListPaging(this.selectedLaw.guid, this.txtSearch,0,this.paginatorArticle.pageSize,"article_order","asc")
              .subscribe(res=>{console.log('update table')})

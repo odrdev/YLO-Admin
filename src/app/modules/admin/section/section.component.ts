@@ -361,7 +361,7 @@ export class SectionComponent implements OnInit, AfterViewInit, OnDestroy
         console.log(event)
         console.log(displacedItem)
         //update order in API
-        var newOrderNumber = displacedItem.section_order;
+        var newOrderNumber = (this.pagination.size * this.pagination.page) + event.currentIndex;
         this._SectionService.reorder(this.selectedArticle.guid, dropItem.id, newOrderNumber).subscribe(res=>{
             console.log('moved Items')
             this._SectionService.getListPaging(this.selectedArticle.guid, this.txtSearch,0,this.paginatorSection.pageSize,"section_order","asc")

@@ -159,7 +159,7 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         console.log(event)
         console.log(displacedItem)
         //update order in API
-        var newOrderNumber = displacedItem.folder_order;
+        var newOrderNumber = (this.pagination.size * this.pagination.page) + event.currentIndex;
         this._folderService.reorder(dropItem.id, newOrderNumber).subscribe(res=>{
             console.log('moved Items')
             this._folderService.getListPaging( this.txtSearch,0,this._paginator.pageSize,"folder_order","asc")

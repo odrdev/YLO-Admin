@@ -27,23 +27,23 @@ export class AuthUtils
     static isTokenExpired(token: string, offsetSeconds?: number): boolean
     {
         // Return if there is no token
-        // if ( !token || token === '' )
-        // {
-        //     return true;
-        // }
+        if ( !token || token === '' )
+        {
+            return true;
+        }
 
         // // Get the expiration date
-        // const date = this._getTokenExpirationDate(token);
+        const date = this._getTokenExpirationDate(token);
 
-        // offsetSeconds = offsetSeconds || 0;
+        offsetSeconds = offsetSeconds || 0;
 
-        // if ( date === null )
-        // {
-        //     return true;
-        // }
+        if ( date === null )
+        {
+            return true;
+        }
 
         // // Check if the token is expired
-        // return !(date.valueOf() > new Date().valueOf() + offsetSeconds * 1000);
+        return !(date.valueOf() > new Date().valueOf() + offsetSeconds * 1000);
 
         return false;
     }

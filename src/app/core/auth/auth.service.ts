@@ -30,6 +30,13 @@ export class AuthService
     /**
      * Setter & getter for access token
      */
+    set user(user:any){
+        localStorage.setItem('user',JSON.stringify(user));
+    }
+    get user(){
+        return JSON.parse(localStorage.getItem('user')) ?? null;
+    }
+
     set accessToken(token: string)
     {
         localStorage.setItem('accessToken', token);
@@ -41,7 +48,17 @@ export class AuthService
     {
         return localStorage.getItem('accessToken') ?? '';
     }
+    set refreshToken(token: string)
+    {
+        localStorage.setItem('refreshToken', token);
+    }
 
+
+
+    get refreshToken(): string
+    {
+        return localStorage.getItem('refreshToken') ?? '';
+    }
     get guid(): string
     {
         return localStorage.getItem('USER_GUID') ?? '';
@@ -109,6 +126,8 @@ export class AuthService
                 // Store the access token in the local storage
                 console.log(response);
                 this.accessToken = response.token;
+                this.refreshToken = response.refreshToken;
+                this.user = response;
                // this._userService.user = {firstName:'',userPhoto:''};
                 this._userService.userGUID = response.userId;
                 // Set the authenticated flag to true
@@ -124,6 +143,7 @@ export class AuthService
 
     check(): Observable<boolean>
     {
+
         // Check if the user is logged in
         if ( this._authenticated )
         {
@@ -136,20 +156,45 @@ export class AuthService
             return of(false);
         }
 
-        // Check the access token expire date
-        // if ( AuthUtils.isTokenExpired(this.accessToken) )
-        // {
-        //     return of(false);
-        // }
+       // Check the access token expire date
+        if ( AuthUtils.isTokenExpired(this.accessToken) )
+        {
+            return of(false);
+        }
 
         // If the access token exists, and it didn't expire, sign in using it
-       // return this.signInUsingToken();
+       return this.signInUsingToken();
        return of(false);
     }
     /**
      * Sign in using the access token
      */
+    signInUsingToken(): Observable<any>{
+        var tokenParam = {
+            "accessToken": this.accessToken,
+            "refreshToken": this.refreshToken
+          }
+        return this._httpClient.post(this.apiUrl + "User/refreshToken", tokenParam,this.getHeaders()).pipe(
+            switchMap((response: any) =>
+            {
+                // Store the access token in the local storage
+                console.log(response);
+                this.accessToken = response.token;
 
+                this.refreshToken = response.refreshToken;
+                this.user = response;
+               // this._userService.user = {firstName:'',userPhoto:''};
+                this._userService.userGUID = response.userId;
+                // Set the authenticated flag to true
+
+                this._authenticated = true;
+                // Store the user on the user service
+                this._userService.user = response.profile
+                // Return a new observable with the response
+                return of(true);
+            }),
+        );
+    }
 
     /**
      * Sign out
@@ -157,8 +202,10 @@ export class AuthService
     signOut(): Observable<any>
     {
         // Remove the access token from the local storage
-        localStorage.removeItem('token');
-
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('USER_GUID')
         // Set the authenticated flag to false
         this._authenticated = false;
 
