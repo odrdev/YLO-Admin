@@ -71,7 +71,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     selectedLaw:iLaw;
     articlePagedList:iArticleList[];
     max = 0;
-    articlelength: 30;
+    articlelength:any[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     lawCtrl = new FormControl();
     @ViewChild('lawInput') lawInput: ElementRef<HTMLInputElement>;
@@ -186,6 +186,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
 
 
 
+
        // Get the pagination and subscribe
         this._ArticleService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -194,7 +195,10 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
                 // Update the pagination
                 console.log(pagination);
                 this.pagination = pagination;
-
+                this.articlelength = [];
+                for (let i = 1; i < pagination.length + 2; i++) {
+                   this.articlelength.push(i);
+                  }
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
             });
@@ -317,6 +321,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             var itemForm:any = item;
           
             this.selectedItemForm.patchValue(itemForm);
+
+
             
             // Mark for check
             this._changeDetectorRef.markForCheck();
@@ -330,8 +336,8 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     new(el:HTMLElement):void{
         console.log("New")
         this.newItem = true; 
-        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid,article_order:this.max};
-        var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid,article_order:this.max};
+        var newItemForm = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid,article_order:this.articlelength.length};
+        var newItem = {id:0, title:'',subtitle:"",description:"",tags:"",visible:false, lawGUID:this.selectedLaw.guid,article_order:this.articlelength.length};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
 

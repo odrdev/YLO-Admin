@@ -81,7 +81,10 @@ export class AuthService
         console.log(error);
         return throwError(() => error);
     }
-
+    handleErrorSignIn(error: HttpErrorResponse)  {
+        //this.signOut();
+        return of(false);;
+    }
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
@@ -193,7 +196,8 @@ export class AuthService
                 // Return a new observable with the response
                 return of(true);
             }),
-        );
+            catchError(this.handleErrorSignIn)
+            );
     }
 
     /**
