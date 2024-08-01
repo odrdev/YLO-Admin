@@ -198,6 +198,13 @@
                                                     matInput
                                                     [formControlName]="'description'">
                                             </mat-form-field>
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Order Number</mat-label>
+                                                <mat-select 
+                                                    [formControlName]="'article_order'">
+                                                        <mat-option *ngFor="let item of articlelength | range" [value]="item">{{item}}</mat-option>
+                                                </mat-select>
+                                            </mat-form-field>
                                         </div>
 
                             </div>

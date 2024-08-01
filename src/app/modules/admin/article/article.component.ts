@@ -36,6 +36,7 @@ import {
     MatDialogActions,
     MatDialogClose,
   } from '@angular/material/dialog';
+  import { RangePipe } from 'app/RangePipe';
 import { ContentModal } from '../contentmodal/contentModal.component';
 @Component({
     selector       : 'article-component',
@@ -45,7 +46,7 @@ import { ContentModal } from '../contentmodal/contentModal.component';
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [ NgIf, CdkDropList, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
+    imports        : [ NgIf, CdkDropList, RangePipe, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule,MatChipsModule, MatAutocompleteModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule,],
 })
 
 export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
@@ -70,6 +71,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
     selectedLaw:iLaw;
     articlePagedList:iArticleList[];
     max = 0;
+    articlelength: 30;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     lawCtrl = new FormControl();
     @ViewChild('lawInput') lawInput: ElementRef<HTMLInputElement>;
@@ -162,7 +164,7 @@ export class ArticleComponent implements OnInit, AfterViewInit, OnDestroy
             description    : [''],
             visible        : [false],
             tags           : [''],
-            article_order  : [0]
+            article_order  : [0, [Validators.required]]
 
         });
 
