@@ -3,7 +3,14 @@ import { ActivatedRouteSnapshot, ResolveFn, RouterStateSnapshot, Routes } from '
 import { FolderRouter } from './folder-router.component';
 import { FolderComponent } from './folder.component';
 import { FolderService } from './folder.services';
+import { LawService } from '../law/law.services';
 
+export const LawResolver: ResolveFn<any> = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ) => {
+    return inject(LawService).getList();
+  };
 export const folderResolver: ResolveFn<any> = (
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
@@ -19,7 +26,7 @@ export default [
             {
                 path     : '',
                 component: FolderComponent,
-                resolve  : {folders:folderResolver},
+                resolve  : {laws:LawResolver, folders:folderResolver},
             },
         ],
     }

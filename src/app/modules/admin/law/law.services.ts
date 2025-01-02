@@ -69,7 +69,10 @@ export class LawService
     getContent(id){
         return this._httpClient.get<any>(this.apiURL + "content/" + id,this.getHeaders());
     }
-
+    getByFolder(GUID:any){
+        var url = this.apiURL + "folder/" + GUID
+        return this._httpClient.get<iLaw[]>(url,this.getHeaders()).pipe();
+    }
     getList(): Observable<iLaw[]>
     {
 

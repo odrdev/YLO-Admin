@@ -1,6 +1,6 @@
 import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AbstractControl, FormControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
@@ -17,13 +17,16 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { iPagination } from '../global.type';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap } from 'rxjs';
+import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil, BehaviorSubject, of, tap, startWith } from 'rxjs';
 import { DateTime } from 'luxon';
 import { FolderService } from './folder.services';
 import { ActivatedRoute } from '@angular/router';
 import { iFolder, iFolderList } from './folder.type';
+import { iLaw, iLawList } from '../law/law.type';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
-
+import { LawService } from '../law/law.services';
+import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
 @Component({
     selector       : 'folder',
     templateUrl    : 'folder.component.html',
@@ -118,7 +121,7 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, CdkDropList, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
+    imports        : [NgIf, CdkDropList, CdkDrag, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, MatAutocompleteModule,MatChipsModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe,MatDatepickerModule],
 })
 
 export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
@@ -139,17 +142,32 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
     txtSearch = "";
     FolderPagedList:iFolderList[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    laws:iLaw[];
+    filteredlaws$:Observable<iLaw[]>;
+    folderLaw: iLaw[];
+    deletedfolderLaw: iLaw[] = [];
+    lawCtrl = new FormControl('');
+    @ViewChild('lawInput') lawInput: ElementRef<HTMLInputElement>;
     constructor(
         private _changeDetectorRef: ChangeDetectorRef,
         private _fuseConfirmationService: FuseConfirmationService,
         private _formBuilder: UntypedFormBuilder,
         private _folderService: FolderService,
+        private _lawService: LawService,
         private activatedRoute: ActivatedRoute
     )
     {
         console.log("Constructor")
+        this.filteredlaws$ = this.lawCtrl.valueChanges.pipe(
+            startWith(null),
+            map((law: string | null) => (law ? this._filter(law) : this.laws.slice())),
+          );
     }
+    private _filter(value: string): iLaw[] {
+        const filterValue = value.toLowerCase();
+    
+        return this.laws.filter(law => law.title.toLowerCase().includes(filterValue));
+      }
     drop(event: CdkDragDrop<iFolder[]>) {
         var dropItem = this.FolderPagedList[event.previousIndex];
         var displacedItem = this.FolderPagedList[event.currentIndex]
@@ -179,9 +197,13 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         });
 
         //load data resolver
+        this.activatedRoute.data.subscribe(({Laws}) => {
+            console.log("loaded laws");
+          });
+
         console.log(this.activatedRoute.data)
         this.activatedRoute.data.subscribe(({folders}) => {
-            console.log("loaded data");
+            console.log("loaded folders");
           });
 
 
@@ -193,6 +215,11 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
                 console.log(res)
                 this.FolderPagedList = res;
         });
+
+        this._lawService.List$.subscribe(res=>{
+            this.laws = res;
+            console.log(this.laws)
+        })
 
        // Get the pagination and subscribe
         this._folderService.pagination$
@@ -311,7 +338,11 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
             var itemForm:any = item;
           
             this.selectedItemForm.patchValue(itemForm);
-            
+            this._lawService.getByFolder(item.guid).subscribe(res=>{
+                console.log(res);
+                this.folderLaw = res;
+                this._changeDetectorRef.markForCheck();
+            })
            
             // Mark for check
             this._changeDetectorRef.markForCheck();
@@ -324,7 +355,8 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         var newItem = {id:0, name:''};
         this.selectedItem = newItem;
         this.selectedItemForm.setValue(newItemForm);
-
+        this.folderLaw = [];
+        this.deletedfolderLaw = [];
         this._changeDetectorRef.markForCheck();
         el.scrollIntoView();
     }
@@ -343,6 +375,12 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
 
             // Fill the form
             this.selectedItemForm.patchValue(newItem);
+
+            this.folderLaw.forEach(item=>{
+                this._folderService.AddLaw(newItem.guid, item.guid).subscribe(res=>{
+                    console.log("Law added to Folder");
+                });
+            })  
 
             // Mark for check
             this._changeDetectorRef.markForCheck();
@@ -363,6 +401,23 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
             console.log(event);
             this.showFlashMessage('success');
             this.newItem = false;
+
+            console.log(this.deletedfolderLaw)
+    
+            this.deletedfolderLaw.forEach(res=>{
+                console.log('removing folders')
+                this._folderService.RemoveLaw( this.selectedItem.guid,res.guid).subscribe(x=>{
+                    console.log("cleared folder");
+                    
+            });     
+            });
+            this.folderLaw.forEach(res=>{
+                console.log('adding folders')
+                this._folderService.AddLaw( this.selectedItem.guid,res.guid,).subscribe(res=>{
+                    console.log("added to folder");
+                });
+            });
+            this.deletedfolderLaw = [];
               
         },complete(){
             console.log('complete');
@@ -435,4 +490,41 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         return item.id || index;
     }
 
+    addLaw(event: MatChipInputEvent): void {
+        const value = (event.value || '').trim();
+    
+        var law = this.laws.find(t=>t.title===event.value);
+        // Add our fruit
+        if (value) {
+          this.folderLaw.push(law);
+        }
+    
+        // Clear the input value
+        event.chipInput!.clear();
+    
+        this.lawCtrl.setValue(null);
+      }
+    
+      removeLaw(law): void {
+        console.log(law)
+        const index = this.folderLaw.indexOf(law);
+    
+        if (index >= 0) {
+          this.folderLaw.splice(index, 1);
+        }
+
+        this.deletedfolderLaw.push(law);
+      }
+    
+      selectedLaw(event: MatAutocompleteSelectedEvent): void {
+        var law = this.laws.find(t=>t.guid===event.option.value);
+        
+        if(law !== undefined){
+            this.folderLaw.push(law);
+            
+        }
+        console.log( this.folderLaw)
+        this.lawInput.nativeElement.value = '';
+        this.lawCtrl.setValue(null);
+      }
 }

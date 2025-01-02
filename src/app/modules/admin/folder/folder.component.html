@@ -150,6 +150,33 @@
 
 
                                         </div>
+                                        <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
+                                            <mat-form-field class="w-full">
+                                                <mat-label>Laws</mat-label>
+                                                <mat-chip-grid #chipGrid aria-label="Selected Laws">
+                                                    <ng-container *ngFor="let law of folderLaw; trackBy: trackByFn">
+                                               
+                                                    <mat-chip-row (removed)="removeLaw(law)">
+                                                      {{law.title}}
+                                                      <button matChipRemove [attr.aria-label]="'remove ' + Law">
+                                                        <mat-icon>cancel</mat-icon>
+                                                      </button>
+                                                    </mat-chip-row>
+                                                    </ng-container>
+                                                    <input matInput placeholder="Select Law..." #lawInput [formControl]="lawCtrl"
+                                                    [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                                                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                    (matChipInputTokenEnd)="addLaw($event)"/>
+                                                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedLaw($event)" >
+                                                      <ng-container *ngFor="let law of filteredlaws$ | async ; trackBy: trackByFn">
+                                                 
+                                                      <mat-option [value]="law.guid">{{law.title}}</mat-option>
+                                                      </ng-container>
+                                                  </mat-autocomplete>
+                                                </mat-chip-grid>
+                                               
+                                              </mat-form-field>
+                                        </div>
 
                             </div>
                             
