@@ -209,6 +209,10 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
               this.newLawItems.forEach(item=>{
                   this._folderService.AddLaw(this.data.guid, item.guid).subscribe(res=>{
                       console.log("Law added to Folder");
+                      if(res){
+                        this.folderLaw.push(res);
+                        this._changeDetectorRef.markForCheck();
+                      }
                   });
               })  
   
