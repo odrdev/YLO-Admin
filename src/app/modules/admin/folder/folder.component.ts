@@ -27,6 +27,8 @@ import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/d
 import { LawService } from '../law/law.services';
 import { MatChipInputEvent,MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDialog } from '@angular/material/dialog';
+import { FolderLaw } from './folder-law.component';
 @Component({
     selector       : 'folder',
     templateUrl    : 'folder.component.html',
@@ -34,18 +36,18 @@ import { MatAutocompleteSelectedEvent,MatAutocompleteModule } from '@angular/mat
         /* language=SCSS */
         `  
             .subs-grid {
-                grid-template-columns: 48px auto  50px;
+                grid-template-columns: 48px auto  50px 50px;
 
                 @screen sm {
-                    grid-template-columns: 48px 48px auto  50px 50px;
+                    grid-template-columns: 48px 48px auto  50px 50px 50px;
                 }
 
                 @screen md {
-                    grid-template-columns: 48px 48px auto  96px 96px; 
+                    grid-template-columns: 48px 48px auto 96px 96px 96px; 
                 }
 
                 @screen lg {
-                    grid-template-columns: 48px 48px auto  96px 96px  ;
+                    grid-template-columns: 48px 48px auto  96px 96px 96px  ;
                 }
             }
             .file-input {
@@ -154,7 +156,9 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         private _formBuilder: UntypedFormBuilder,
         private _folderService: FolderService,
         private _lawService: LawService,
-        private activatedRoute: ActivatedRoute
+        private activatedRoute: ActivatedRoute,
+        public dialog: MatDialog,
+
     )
     {
         console.log("Constructor")
@@ -527,4 +531,19 @@ export class FolderComponent implements OnInit, AfterViewInit, OnDestroy
         this.lawInput.nativeElement.value = '';
         this.lawCtrl.setValue(null);
       }
+
+            viewLaws(item:any){
+              console.log('view content')
+              const dialogRef = this.dialog.open(FolderLaw, {
+                  height: '70%',
+            width: '80%',
+                  data: {guid: item.guid, name:item.name, lawlist:this.laws},
+                    enterAnimationDuration:500, exitAnimationDuration:500
+                });
+            
+                dialogRef.afterClosed().subscribe(result => {
+                  console.log('The dialog was closed');
+                 
+                });
+          }
 }

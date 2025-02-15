@@ -1,0 +1,191 @@
+
+<mat-dialog-content>
+    <div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent" @slideInLeft>
+        <mat-dialog-actions>
+            <button mat-button mat-dialog-close><mat-icon
+                class="icon-size-5"
+                [svgIcon]="'heroicons_solid:x-mark'"></mat-icon></button>
+        </mat-dialog-actions>
+        <!-- Header -->
+        <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+            <!-- Title -->
+            <div class="text-4xl font-extrabold tracking-tight">{{data.name}}</div>
+            <!-- Actions -->
+            <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+                <!-- Add product button -->
+                <button
+                    class="ml-4"
+                    mat-flat-button
+                    [color]="'primary'"
+                    (click)="new(newItemSection)">
+                    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span class="ml-2 mr-1">Add</span>
+                </button>
+            </div>
+        </div>
+    
+        <!-- Main -->
+        <div class="flex flex-auto overflow-hidden">
+    
+            <!-- Products list -->
+            <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto" #newItemSection >
+                <ng-container  *ngIf="folderLaw" >
+                    <ng-container>
+                        <div class="grid">
+                            <!-- Header -->
+                            <div
+                                class="subs-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5">
+                                <div>
+    
+                                </div>
+                                <div [mat-sort-header]="'name'">Law Name</div>
+                                <div class="hidden sm:block">Show</div>
+                                <div class="hidden sm:block">Remove from folder</div>
+                            </div>
+                            <!-- Rows -->
+                            <div class="grid" >
+                                <ng-container *ngIf="newItem" >
+                                    <ng-container *ngTemplateOutlet="rowDetailsTemplate; context: {$implicit: item}"></ng-container>
+                                </ng-container>
+                            </div>
+                            <ng-container *ngIf="folderLaw.length > 0; else noData">
+                            <ng-container *ngIf="folderLaw">
+                                <div class="folder-table" cdkDropList (cdkDropListDropped)="drop($event)">
+                                <ng-container *ngFor="let item of folderLaw; let index=index; trackBy: trackByFn">
+                                    <div class="subs-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b" cdkDrag >
+                                        <div>
+                                            <mat-icon>reorder</mat-icon>
+                                        </div>    
+                                        <!-- Name -->
+                                        <div class="truncate">
+                                            <p>{{item.l.title}}</p>                         
+                                        </div>
+    
+                                        <!-- Service Type -->
+                                        <div class="text hidden sm:block text-center">
+                                            <!-- {{pliServices[product.serviceId-1].name}} -->
+                                        
+                                            <mat-checkbox
+                                         
+                                            [checked]="item.fl.show"
+                                           
+                                            (change)="toggleShowFL(item.fl, $event.checked)"
+                                          >
+                                          </mat-checkbox>
+                                        </div>
+
+                                        <!-- Details button -->
+                                        <div>
+                                            <button
+                                                class="min-w-10 min-h-7 h-7 px-2 leading-6"
+                                                mat-stroked-button
+                                                (click)="deleteFolderLaw(index, item.fl)">
+                                                <mat-icon
+                                                    class="icon-size-5"
+                                                    [svgIcon]="'heroicons_solid:x-mark'"></mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                </div>
+                            </ng-container>
+                            </ng-container>
+                        </div>
+
+                    </ng-container>
+                </ng-container>
+    
+                <ng-template
+                    #rowDetailsTemplate
+                    let-item>
+                    <div class="shadow-lg overflow-hidden">
+                        <div class="flex border-b">
+                            <!-- Selected product form -->
+                            <form
+                                class="flex flex-col w-full"
+                                [formGroup]="selectedItemForm">
+                                <div class="flex flex-col sm:flex-row p-8">
+                                <div class="flex flex-auto flex-wrap">
+                                            <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
+                                                <mat-form-field class="w-full">
+                                                    <mat-label>Laws</mat-label>
+                                                    <mat-chip-grid #chipGrid aria-label="Selected Laws">
+                                                        <ng-container *ngFor="let law of newLawItems; trackBy: trackByFn">
+                                                   
+                                                        <mat-chip-row (removed)="removeLaw(law)">
+                                                          {{law.title}}
+                                                          <button matChipRemove [attr.aria-label]="'remove ' + Law">
+                                                            <mat-icon>cancel</mat-icon>
+                                                          </button>
+                                                        </mat-chip-row>
+                                                        </ng-container>
+                                                        <input matInput placeholder="Select Law..." #lawInput [formControl]="lawCtrl"
+                                                        [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                                                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                                                        (matChipInputTokenEnd)="addLawToFolder($event)"/>
+                                                      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedLaw($event)" >
+                                                          <ng-container *ngFor="let law of filteredLawList | async ; trackBy: trackByFn">
+                                                     
+                                                          <mat-option [value]="law.guid">{{law.title}}</mat-option>
+                                                          </ng-container>
+                                                      </mat-autocomplete>
+                                                    </mat-chip-grid>
+                                                   
+                                                  </mat-form-field>
+                                            </div>
+    
+                                </div>
+                                
+                                </div>                             
+                                <div *ngIf="newItem" class="flex items-center justify-between w-full border-t px-8 py-4">
+                                    <button
+                                        class="-ml-4"
+                                        mat-button
+                                        [color]="'warn'"
+                                        (click)="closeDetails()">
+                                        Cancel
+                                    </button>
+                                    <div class="flex items-center">
+                                        <div
+                                            class="flex items-center mr-4"
+                                            *ngIf="flashMessage">
+                                            <ng-container *ngIf="flashMessage === 'success'">
+                                                <mat-icon
+                                                    class="text-green-500"
+                                                    [svgIcon]="'heroicons_outline:check'"></mat-icon>
+                                                <span class="ml-2">Law added to folder</span>
+                                            </ng-container>
+                                            <ng-container *ngIf="flashMessage === 'error'">
+                                                <mat-icon
+                                                    class="text-red-500"
+                                                    [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                                                <span class="ml-2">An error occurred, try again!</span>
+                                            </ng-container>
+                                        </div>
+                                        <button
+                                            mat-flat-button
+                                            [color]="'primary'"
+                                            (click)="create()">
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </ng-template>
+    
+                <ng-template #noData>
+                    <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">There are no data!</div>
+                </ng-template>
+    
+            </div>
+    
+        </div>
+    
+    </div>
+    <div class="law-content" *ngIf="!folderLaw">
+        <mat-spinner></mat-spinner>
+    </div>
+
+</mat-dialog-content>

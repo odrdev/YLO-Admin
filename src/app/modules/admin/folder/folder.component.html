@@ -61,6 +61,7 @@
                             </div>
                             <div [mat-sort-header]="'name'">Name</div>
                             <div [mat-sort-header]="'folder_order'" class="hidden sm:block" >Display Order</div>
+                            <div class="hidden sm:block">Laws</div>
                             <div class="hidden sm:block">Details</div>
                         </div>
                         <!-- Rows -->
@@ -91,6 +92,11 @@
                                         <!-- {{pliServices[product.serviceId-1].name}} -->
                                         {{item.folder_order}}
                                     </div>
+                                    <div class="text hidden sm:block text-center">
+                                        <button mat-icon-button color="primary" aria-label="preview" (click)="viewLaws(item)">
+                                            <mat-icon>visibility</mat-icon>
+                                          </button>
+                                    </div>
                                     <!-- Details button -->
                                     <div>
                                         <button
@@ -103,6 +109,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                  
                                 <div class="grid">
                                     <ng-container *ngIf="selectedItem?.id === item.id">
                                         <ng-container *ngTemplateOutlet="rowDetailsTemplate; context: {$implicit: item}"></ng-container>

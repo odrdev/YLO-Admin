@@ -237,6 +237,10 @@ export class FolderService
             )),
         );
     }
+    getByFolder(GUID:any){
+        var url = this.apiURL + "FolderLaw/" + GUID
+        return this._httpClient.get(url,this.getHeaders()).pipe();
+    }
     getByLaw(GUID:any){
         var url = this.apiURL + "Law/" + GUID
         return this._httpClient.get<iFolder[]>(url,this.getHeaders()).pipe();
@@ -253,18 +257,28 @@ export class FolderService
         var url = this.apiURL + FolderGUID + "/AddLaw/" + LawGUID
         return  this._httpClient.post(url, null, this.getHeaders()).pipe();
     }
-    RemoveTopic(FolderGUID, LawGUID){ 
-        var url = this.apiURL + FolderGUID + "/RemoveTopic/" + LawGUID
+    RemoveTopic(FolderGUID, TopicGUID){ 
+        var url = this.apiURL + FolderGUID + "/RemoveTopic/" + TopicGUID
         return  this._httpClient.delete(url, this.getHeaders()).pipe();
     }
-    RemoveLaw(FolderGUID, TopicGUID){ 
-        var url = this.apiURL + FolderGUID + "/RemoveLaw/" + TopicGUID
+    RemoveLaw(FolderGUID, LawGUID){ 
+        var url = this.apiURL + FolderGUID + "/RemoveLaw/" + LawGUID
         return  this._httpClient.delete(url, this.getHeaders()).pipe();
+    }
+    HideLaw(FolderGUID, LawGUID,hide){ 
+        var url = this.apiURL + FolderGUID + "/HideLaw/" + LawGUID + "?hide="+hide
+        return  this._httpClient.post(url, this.getHeaders()).pipe();
     }
     reorder(folderId,orderNumber): Observable<any>
     {
         var url = this.apiURL +"reorder/" + folderId + "?FolderOrder="+orderNumber
         return this._httpClient.post<iFolder>(url, null, this.getHeaders());
+        
+    }
+    reorderFolderLaw(folderLawId,folderGUID, orderNumber): Observable<any>
+    {
+        var url = this.apiURL +"reorderlaw/" + folderLawId + "?folderGUID=" +folderGUID + "&display_order="+orderNumber
+        return this._httpClient.post(url, null, this.getHeaders());
         
     }
 }
